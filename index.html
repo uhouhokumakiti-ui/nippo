@@ -197,7 +197,7 @@ input[type=time],input[type=date]{min-width:0}
 
 <script>
 'use strict';
-const APP_VERSION = '0.2.0';
+const APP_VERSION = '0.2.1';
 
 /* ---------- 基本ユーティリティ ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -230,9 +230,10 @@ const OPT = {
   hannyu: [
     { g: 'トラック', items: ['トラック 2t積2.9t吊', 'トラック 3t積2.9t吊', 'トラック 4t積2.9t吊'] },
     { g: '特装車運搬', items: ['特装車運搬 100m以下', '特装車運搬 100m〜300m', '特装車運搬 300m以上'] },
-    { g: 'モノレール運搬', items: ['モノレール運搬 50m以下', 'モノレール運搬 50m〜100m', 'モノレール運搬 100m〜200m', 'モノレール運搬 200m以上'] },
+    { g: 'モノレール運搬', items: ['モノレール運搬 50m以下', 'モノレール運搬 50m〜100m', 'モノレール運搬 100m〜200m', 'モノレール運搬 200m〜300m', 'モノレール運搬 300m以上'] },
+    { g: 'その他', items: ['その他'] },
   ],
-  yosui: ['動力噴霧機', '水道', '水運搬', '水中ポンプ'],
+  yosui: ['動力噴霧機', '水道', '水運搬', '水中ポンプ', 'その他'],
   kussaku: ['ノンコア', '半ペネ半コア', 'オールコア'],
   kind: ['小運搬', '仮設', '掘進', '試験', 'その他'],
   role: ['調査技士', '調査助手', 'その他'],
@@ -256,7 +257,7 @@ const MAX_WORKERS = 5, MAX_IV = 6;
 /* ---------- データ ---------- */
 let S = { v: 2, sites: [], holes: [], reports: [], names: [], places: [] };
 const blankWorker = role => ({ role: role || '', name: '', from: '', to: '', stay: false, mvFrom: '', mvTo: '' });
-const blankCond = () => ({ ashiba: '', hannyu: [], tokusoM: '', monoM: '', yosui: [], engine: '', pump: '', hammer: '', kussaku: '', dia: '', angle: '', slope: '' });
+const blankCond = () => ({ ashiba: '', hannyu: [], tokusoM: '', monoM: '', hannyuEtc: '', yosui: [], yosuiEtc: '', drill: '', engine: '', pump: '', hammer: '', kussaku: '', dia: '', angle: '', slope: '' });
 const blankReport = () => ({
   id: uid(), holeId: '', date: '', no: '1', writer: '', weather: [],
   depth: { prev: '', end: '' },
@@ -274,6 +275,7 @@ function migrate(r) {
   r.cond = Object.assign(blankCond(), r.cond || {});
   if (typeof r.cond.hannyu === 'string') r.cond.hannyu = r.cond.hannyu ? [r.cond.hannyu.replace('300m〜500m', '300m以上')] : [];
   if (!Array.isArray(r.cond.yosui)) r.cond.yosui = [];
+  r.cond.hannyu = r.cond.hannyu.map(x => x === 'モノレール運搬 200m以上' ? ((num(r.cond.monoM) ?? 300) >= 300 ? 'モノレール運搬 300m以上' : 'モノレール運搬 200m〜300m') : x);
   if (/^湿地 /.test(r.cond.ashiba)) r.cond.ashiba = '湿地';
   if (r.cond.ashiba === '平坦') r.cond.ashiba = '平坦 30cm以下';
   r.workers = (r.workers || []).map(w => Object.assign(blankWorker(''), w));
@@ -385,8 +387,10 @@ function warnings(r) {
   if (!r.date) w('basic', '作業日が入っていません');
   else if (S.reports.some(x => x !== r && x.holeId === r.holeId && x.date === r.date)) w('basic', '同じ作業日の日報がほかにもあります');
   if (p != null && e != null && e < p) w('basic', '本日の到達深度が前日より浅くなっています');
-  if (r.cond.hannyu.includes('特装車運搬 300m以上') && !r.cond.tokusoM) w('cond', '特装車運搬（300m以上）の距離が未入力です');
-  if (r.cond.hannyu.includes('モノレール運搬 200m以上') && !r.cond.monoM) w('cond', 'モノレール運搬（200m以上）の距離が未入力です');
+  if (r.cond.hannyu.includes('特装車運搬 300m以上') && !r.cond.tokusoM) w('cond', '特装車運搬（300m以上）の架設延長が未入力です');
+  if (r.cond.hannyu.includes('モノレール運搬 300m以上') && !r.cond.monoM) w('cond', 'モノレール運搬（300m以上）の架設延長が未入力です');
+  if (r.cond.hannyu.includes('その他') && !r.cond.hannyuEtc.trim()) w('cond', '搬入方法の「その他」の内容が未入力です');
+  if (r.cond.yosui.includes('その他') && !r.cond.yosuiEtc.trim()) w('cond', '作業用水の「その他」の内容が未入力です');
   r.casing.forEach(c => { const a = num(c.from), b = num(c.to); if (a != null && b != null && b < a) w('water', `ケーシング${c.d}の深度が逆になっています`); });
   const wb = num(r.water.after);
   if (e != null && wb != null && wb > e + 0.001) w('water', '作業後の孔内水位が到達深度より深くなっています');
@@ -617,11 +621,14 @@ const SEC = {
       ${H.fld('掘進角度', `<div class="row">${H.txt('cond.angle', r.cond.angle, '例：鉛直、または 75')}<span class="unit">°</span></div>
         <div class="chips sub"><button type="button" class="chip${r.cond.angle === '鉛直' ? ' on' : ''}" data-act="set" data-k="cond.angle" data-v="鉛直">鉛直</button></div>`)}</div>
     <div class="card"><div class="card-h"><b>搬入方法（複数選べます）</b></div>${H.groups('cond.hannyu', OPT.hannyu, r.cond.hannyu, true, true, {
-      '特装車運搬': `<div class="sub">${H.fld('300m以上のときの距離', H.unit('cond.tokusoM', r.cond.tokusoM, 'm', '例：350'))}</div>`,
-      'モノレール運搬': `<div class="sub">${H.fld('200m以上のときの距離', H.unit('cond.monoM', r.cond.monoM, 'm', '例：250'))}</div>`,
+      '特装車運搬': `<div class="sub">${H.fld('300m以上のときの架設延長', H.unit('cond.tokusoM', r.cond.tokusoM, 'm', '例：350'))}</div>`,
+      'モノレール運搬': `<div class="sub">${H.fld('300m以上のときの架設延長', H.unit('cond.monoM', r.cond.monoM, 'm', '例：350'))}</div>`,
+      'その他': r.cond.hannyu.includes('その他') ? `<div class="sub">${H.fld('その他の内容', H.txt('cond.hannyuEtc', r.cond.hannyuEtc, '例：人力運搬、クローラ運搬'))}</div>` : '',
     })}</div>
-    <div class="card"><div class="card-h"><b>作業用水（複数選べます）</b></div>${H.chips('cond.yosui', OPT.yosui, r.cond.yosui, true)}</div>
+    <div class="card"><div class="card-h"><b>作業用水（複数選べます）</b></div>${H.chips('cond.yosui', OPT.yosui, r.cond.yosui, true)}
+      ${r.cond.yosui.includes('その他') ? `<div class="sub">${H.fld('その他の内容', H.txt('cond.yosuiEtc', r.cond.yosuiEtc, '例：河川水、湧水'))}</div>` : ''}</div>
     <div class="card"><div class="card-h"><b>使用機械</b></div>
+      ${H.fld('試錐機', H.txt('cond.drill', r.cond.drill, '機種名など'))}
       ${H.fld('エンジン', H.txt('cond.engine', r.cond.engine, '機種名など'))}
       ${H.fld('ポンプ', H.txt('cond.pump', r.cond.pump, '機種名など'))}
       ${H.fld('ハンマー落下装置', H.txt('cond.hammer', r.cond.hammer, '機種名など'))}</div>
@@ -1017,23 +1024,24 @@ function paperPage(r, s, h, D, p, n) {
     <tr><td class="c sm" style="height:26px">地盤勾配</td><td class="c v">${c.slope ? esc(c.slope) + '°' : ''}</td></tr>
     <tr><td class="c sm" style="height:26px">掘進角度</td><td class="c v">${ang}</td></tr></table></div>`;
   /* 搬入方法・作業用水・使用機械・掘削方法・ケーシング */
-  const hn = OPT.hannyu, hs = c.hannyu || [];
-  const hnCell = (g, j) => {
-    const x = hn[g].items[j]; if (!x) return '<td></td>';
-    let lab = esc(x.replace(hn[g].g + ' ', ''));
-    if (x === '特装車運搬 300m以上') lab += ` <b class="v">${esc(c.tokusoM) || '　　'}</b>m`;
-    if (x === 'モノレール運搬 200m以上') lab += ` <b class="v">${esc(c.monoM) || '　　'}</b>m`;
-    return `<td>${lab}${cb(hs.includes(x))}</td>`;
-  };
+  /* 搬入方法・作業用水は選んだものだけを書く */
+  const hs = c.hannyu || [];
+  const hnLines = OPT.hannyu.flatMap(g => g.items).filter(x => hs.includes(x)).map(x => {
+    if (x === 'その他') return `その他：${c.hannyuEtc}`;
+    if (x === '特装車運搬 300m以上') return `特装車運搬　架設延長 ${c.tokusoM || '　　'}m`;
+    if (x === 'モノレール運搬 300m以上') return `モノレール運搬　架設延長 ${c.monoM || '　　'}m`;
+    return x.replace(' ', '　');
+  });
+  const ysLines = OPT.yosui.filter(x => c.yosui.includes(x)).map(x => x === 'その他' ? `その他：${c.yosuiEtc}` : x);
+  const lines5 = L => Array.from({ length: 5 }, (_, j) => L[j] || '');
   html += `<div class="blk">
-   <table style="width:340px"><colgroup><col style="width:36px"><col style="width:92px"><col style="width:106px"><col></colgroup>
-    <tr><td class="c" rowspan="5">搬入<br>方法</td>${hn.map(g => `<td class="c">${g.g}</td>`).join('')}</tr>
-    ${[0, 1, 2, 3].map(j => `<tr>${[0, 1, 2].map(g => hnCell(g, j)).join('')}</tr>`).join('')}</table>
-   <table style="width:120px"><colgroup><col style="width:34px"><col></colgroup>
-    ${OPT.yosui.map((x, j) => `<tr>${j === 0 ? '<td class="c wrap" rowspan="5" style="vertical-align:middle">作業<br>用水</td>' : ''}<td>${x}${cb(c.yosui.includes(x))}</td></tr>`).join('')}<tr><td></td></tr></table>
-   <table style="width:200px"><colgroup><col style="width:92px"><col></colgroup>
+   <table style="width:214px"><colgroup><col style="width:36px"><col></colgroup>
+    ${lines5(hnLines).map((x, j) => `<tr>${j === 0 ? '<td class="c" rowspan="5">搬入<br>方法</td>' : ''}<td class="v" style="font-size:10px">${esc(x)}</td></tr>`).join('')}</table>
+   <table style="width:126px"><colgroup><col style="width:34px"><col></colgroup>
+    ${lines5(ysLines).map((x, j) => `<tr>${j === 0 ? '<td class="c" rowspan="5">作業<br>用水</td>' : ''}<td class="v" style="font-size:10px">${esc(x)}</td></tr>`).join('')}</table>
+   <table style="width:320px"><colgroup><col style="width:92px"><col></colgroup>
     <tr><td class="c" colspan="2">使 用 機 械</td></tr>
-    <tr><td>エンジン</td><td class="v">${esc(c.engine)}</td></tr><tr><td>ポンプ</td><td class="v">${esc(c.pump)}</td></tr><tr><td>ハンマー落下装置</td><td class="v">${esc(c.hammer)}</td></tr><tr><td></td><td></td></tr></table>
+    <tr><td>試錐機</td><td class="v">${esc(c.drill)}</td></tr><tr><td>エンジン</td><td class="v">${esc(c.engine)}</td></tr><tr><td>ポンプ</td><td class="v">${esc(c.pump)}</td></tr><tr><td>ハンマー落下装置</td><td class="v">${esc(c.hammer)}</td></tr></table>
    <table style="width:118px"><tr><td class="c">掘削方法</td></tr>${OPT.kussaku.map(x => `<tr><td>${x}${cb(c.kussaku === x)}</td></tr>`).join('')}
     <tr><td>主要孔径 φ<b class="v">${esc(c.dia)}</b>mm</td></tr></table>
    <table style="width:261px"><colgroup><col style="width:58px"><col style="width:52px"><col></colgroup>
@@ -1087,10 +1095,13 @@ function paperPage(r, s, h, D, p, n) {
     const ws = Array.from({ length: MAX_WORKERS }, (_, j) => r.workers[j] || null);
     const mv = r.workers.filter(w => w.name && (w.mvFrom || w.mvTo)).map(w => `移動：${w.name}　${w.mvFrom}〜${w.mvTo}`);
     const noteHtml = esc([r.note, ...mv].filter(Boolean).join('\n')).replace(/\n/g, '<br>');
-    const chk = k => {
-      const L = r.tests.filter(t => t.kind === k), deps = L.map(t => (t.from || t.to) ? `${f2(num(t.from))}〜${f2(num(t.to))}` : '').filter(Boolean).join(', ');
-      return `${cb(L.length > 0)} ${k.replace('サンプリング', 'ｻﾝﾌﾟﾘﾝｸﾞ')}${L.length > 1 ? ` ×${L.length}` : ''}${deps ? `<br><span class="dep">GL-${deps}</span>` : ''}`;
-    };
+    /* 計測・試験・サンプリング／物理探査は、入力したものだけを種類と深度で書く */
+    const done = kinds => kinds.filter(k => r.tests.some(t => t.kind === k)).map(k => {
+      const L = r.tests.filter(t => t.kind === k), deps = L.map(t => (t.from || t.to) ? `${f2(num(t.from))}〜${f2(num(t.to))}` : '').filter(Boolean).join('、');
+      const memo = L.map(t => t.memo).filter(Boolean).join('、');
+      return `<div style="margin-bottom:3px"><b>${esc(k)}</b>${L.length > 1 ? ` ${L.length}回` : ''}${deps ? `<br>GL-${deps}m` : ''}${memo ? `<br>（${esc(memo)}）` : ''}</div>`;
+    }).join('');
+    const leftKinds = [...OPT.testGroups[0].items, ...OPT.testGroups[1].items], rightKinds = OPT.testGroups[2].items;
     html += `<div class="blk" style="margin-top:7px">
      <table style="width:347px"><colgroup><col style="width:58px">${`<col style="width:${HW}px">`.repeat(H1 - H0 + 1)}</colgroup>
       <tr><td class="r sm" style="height:17px">時間</td><td class="c" colspan="${H1 - H0 + 1}">作業内容</td></tr>
@@ -1103,7 +1114,7 @@ function paperPage(r, s, h, D, p, n) {
      <table style="width:200px"><tr><td class="c" style="height:17px">備　　考</td></tr><tr><td class="wrap" style="height:117px;font-size:9px">${clip(noteHtml, 114)}</td></tr></table>
      <table style="width:217px"><colgroup><col style="width:108px"><col></colgroup>
       <tr><td class="c sm wrap" style="height:17px;vertical-align:middle">計測・試験・<br>サンプリング</td><td class="c sm" style="vertical-align:middle">物理探査・計測</td></tr>
-      ${OPT.tests.map((x, j) => `<tr><td class="sm wrap" style="height:23.4px;vertical-align:middle">${clip(chk(x), 22)}</td><td class="sm wrap" style="vertical-align:middle">${clip(chk(OPT.geo[j]), 22)}</td></tr>`).join('')}</table>
+      <tr><td class="sm wrap" style="height:117px">${clip(done(leftKinds), 114)}</td><td class="sm wrap">${clip(done(rightKinds), 114)}</td></tr></table>
     </div>`;
   } else {
     html += `<div class="cont">※ 作業時間・作業者・備考・試験の欄は1ページ目に記載しています。</div>`;
