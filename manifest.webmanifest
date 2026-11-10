@@ -1,0 +1,17 @@
+{
+  "name": "試錐日報",
+  "short_name": "試錐日報",
+  "description": "ボーリング現場の試錐日報を入力し、日報様式のPDFで送るアプリ",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eceeea",
+  "theme_color": "#1d5466",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
