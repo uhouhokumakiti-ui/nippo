@@ -66,6 +66,7 @@ p.lead{margin:2px 2px 12px;color:var(--sub);font-size:15px}
 .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--acc);color:#fff;vertical-align:2px;margin-left:6px}
 .tag.ok{background:var(--ok)}
 .tag.w{background:var(--warn-bg);color:var(--warn)}
+.tag.rk{background:var(--pri)}
 .day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
 .day .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .day .top b{font-size:18px}
@@ -97,11 +98,14 @@ input[type=time],input[type=date]{min-width:0}
 .row>input{flex:1;min-width:0}
 .pre,.unit{flex:0 0 auto;color:var(--sub);font-weight:700;font-size:16px}
 .tilde{flex:0 0 auto;color:var(--sub)}
+.mv{display:grid;gap:6px}
+.mv .tilde{text-align:center;line-height:1}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{min-height:46px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-size:16px}
 .chip.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
-.grp{font-size:13px;color:var(--sub);font-weight:700;margin:10px 0 6px}
+.grp{font-size:13px;color:var(--sub);font-weight:700;margin:12px 0 6px}
 .grp:first-child{margin-top:0}
+.sub{margin-top:10px}
 .calc{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--pri-soft);font-size:15px}
 .calc b{font-size:20px}
 .warnbox{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:10px 12px;font-size:14.5px;margin-bottom:12px}
@@ -110,13 +114,9 @@ input[type=time],input[type=date]{min-width:0}
 .iv{display:grid;grid-template-columns:3.4em 1fr 1fr;gap:6px 8px;align-items:center}
 .iv .h{font-size:12.5px;color:var(--sub);font-weight:700}
 .iv .n{font-size:14px;color:var(--sub);font-weight:700}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
 .ivbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .stop{display:inline-block;margin-left:6px;font-size:12px;font-weight:700;color:#fff;background:var(--danger);padding:1px 8px;border-radius:999px;vertical-align:2px}
-.tog{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:54px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);text-align:left;margin-bottom:8px;font-size:16px}
-.tog .bx{flex:0 0 auto;width:26px;height:26px;border-radius:7px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
-.tog.on{border-color:var(--pri)}
-.tog.on .bx{background:var(--pri);border-color:var(--pri)}
-.tog.auto{opacity:.75}
 .tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .install{background:var(--card);border:1.5px solid var(--acc);border-radius:16px;padding:12px 14px;margin-bottom:14px;font-size:14.5px}
 .install b{display:block;font-size:16px;margin-bottom:2px}
@@ -124,7 +124,7 @@ input[type=time],input[type=date]{min-width:0}
 .empty{text-align:center;color:var(--sub);padding:22px 10px;font-size:15px}
 
 .foot{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--card);border-top:1px solid var(--line);
-  padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center}
+  padding:10px max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left,0px));display:flex;gap:10px;justify-content:center}
 .foot>.btn{flex:1;max-width:345px}
 
 #modal[hidden]{display:none}
@@ -143,6 +143,7 @@ input[type=time],input[type=date]{min-width:0}
 .pv{overflow:hidden;border-radius:6px;box-shadow:0 1px 6px rgba(0,0,0,.25);margin:0 auto 12px;background:#fff}
 .pv>.paper{transform-origin:0 0}
 #paper-host{position:fixed;left:-30000px;top:0;pointer-events:none}
+.wknav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 
 /* ===== 帳票（A4横 1123×794px） ===== */
 .paper{width:1123px;height:794px;background:#fff;color:#000;padding:20px 28px;position:relative;overflow:hidden;
@@ -154,16 +155,25 @@ input[type=time],input[type=date]{min-width:0}
 .paper .r{text-align:right}
 .paper .v{font-size:11px;font-weight:bold;color:#000}
 .paper .wrap{white-space:normal;line-height:1.2;vertical-align:top;padding-top:1px}
-.paper .nb{border:0}
-.paper .dl{border-bottom:1px dashed #000}
+.paper .clip{overflow:hidden;white-space:normal;word-break:break-all}
 .paper .cb{display:inline-block;width:10px;height:10px;border:1px solid #000;vertical-align:-1px;margin-left:3px;text-align:center;line-height:9px;font-size:10px;font-weight:bold}
 .paper .p-title{text-align:center;font-size:20px;letter-spacing:10px;font-weight:bold;height:26px;text-decoration:underline}
 .paper .p-no{position:absolute;right:28px;top:22px;font-size:10.5px}
 .paper .blk{display:flex;gap:7px;margin-top:6px;align-items:flex-start}
 .paper .sm{font-size:8.5px}
+.paper .xs{font-size:7.5px;line-height:1.1;white-space:normal}
+.paper .dep{font-size:7.5px}
 .paper .gbar{position:absolute;top:4px;height:11px;background:#444;color:#fff;font-size:7.5px;line-height:11px;padding:0 2px;overflow:hidden;white-space:nowrap}
 .paper .gl{position:absolute;top:0;bottom:0;width:0;border-left:1px dotted #999}
 .paper .cont{position:absolute;left:28px;bottom:16px;font-size:10px}
+/* 週報 */
+.paper.wk td{height:18px}
+.paper .wk-cell{font-size:9.5px;line-height:13px;overflow:hidden;white-space:normal;word-break:break-all}
+.paper .vt{text-align:center;line-height:2.4}
+.paper .sh{font-weight:bold;font-size:10px;line-height:14px;margin-top:2px}
+.paper .st{display:flex;font-size:10px;line-height:13px}
+.paper .st .sd{flex:0 0 30px;text-align:right;padding-right:4px}
+.paper .st .sn{flex:1;min-width:0;word-break:break-all}
 </style>
 </head>
 <body>
@@ -178,13 +188,16 @@ input[type=time],input[type=date]{min-width:0}
 <div id="busy" hidden>PDFを作成しています…</div>
 <div id="paper-host" aria-hidden="true"></div>
 <datalist id="dl-names"></datalist>
+<datalist id="dl-places"></datalist>
 <datalist id="dl-color"><option>茶褐<option>暗褐<option>黄褐<option>褐灰<option>灰<option>暗灰<option>青灰<option>灰白<option>黒<option>暗緑灰</datalist>
 <datalist id="dl-geo"><option>表土<option>盛土<option>埋土<option>粘土<option>シルト<option>砂質シルト<option>粘土質シルト<option>砂<option>シルト質砂<option>細砂<option>中砂<option>粗砂<option>礫混り砂<option>砂礫<option>玉石混り砂礫<option>真砂土<option>強風化花崗岩<option>風化花崗岩<option>花崗岩<option>軟岩<option>硬岩</datalist>
 <datalist id="dl-dia"><option>66<option>86<option>116<option>135</datalist>
+<datalist id="dl-bit"><option>シングルコアチューブ／メタルクラウン<option>ダブルコアチューブ／メタルクラウン<option>ダブルコアチューブ／ダイヤモンドビット<option>トリプルコアチューブ／ダイヤモンドビット<option>ノンコアビット</datalist>
+<datalist id="dl-water"><option>清水<option>泥水<option>ベントナイト泥水<option>ポリマー泥水<option>気泡</datalist>
 
 <script>
 'use strict';
-const APP_VERSION = '0.1.1';
+const APP_VERSION = '0.2.0';
 
 /* ---------- 基本ユーティリティ ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -196,11 +209,13 @@ const z2h = s => String(s ?? '').replace(/[０-９．－]/g, c => c === '．' ? 
 const num = v => { if (v === '' || v == null) return null; const n = parseFloat(z2h(v)); return Number.isFinite(n) ? n : null; };
 const f2 = n => n == null ? '' : (Math.round(n * 100) / 100).toFixed(2);
 const hh = t => { if (!t) return null; const [h, m] = t.split(':').map(Number); return h + (m || 0) / 60; };
-const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const dstr = t => `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+const todayStr = () => dstr(new Date());
 const WD = ['日','月','火','水','木','金','土'];
 const ymd = s => { const [y, m, d] = (s || '').split('-').map(Number); return { y, m, d, w: y ? WD[new Date(y, m - 1, d).getDay()] : '' }; };
 const fmtDate = (s, withYear) => { if (!s) return '日付未設定'; const t = ymd(s); return `${withYear ? t.y + '年' : ''}${t.m}月${t.d}日(${t.w})`; };
 const fmtTime = ms => { if (!ms) return ''; const d = new Date(ms); return `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const byName = (a, b) => (a.name || '').localeCompare(b.name || '', 'ja', { numeric: true });
 
 /* ---------- 選択肢（日報様式に合わせる） ---------- */
 const OPT = {
@@ -214,48 +229,81 @@ const OPT = {
   ],
   hannyu: [
     { g: 'トラック', items: ['トラック 2t積2.9t吊', 'トラック 3t積2.9t吊', 'トラック 4t積2.9t吊'] },
-    { g: '特装車運搬', items: ['特装車運搬 100m以下', '特装車運搬 100m〜300m', '特装車運搬 300m〜500m'] },
-    { g: 'モノレール運搬', items: ['モノレール運搬 50m以下', 'モノレール運搬 50m〜100m', 'モノレール運搬 100m〜200m'] },
+    { g: '特装車運搬', items: ['特装車運搬 100m以下', '特装車運搬 100m〜300m', '特装車運搬 300m以上'] },
+    { g: 'モノレール運搬', items: ['モノレール運搬 50m以下', 'モノレール運搬 50m〜100m', 'モノレール運搬 100m〜200m', 'モノレール運搬 200m以上'] },
   ],
   yosui: ['動力噴霧機', '水道', '水運搬', '水中ポンプ'],
   kussaku: ['ノンコア', '半ペネ半コア', 'オールコア'],
   kind: ['小運搬', '仮設', '掘進', '試験', 'その他'],
   role: ['調査技士', '調査助手', 'その他'],
-  sample: ['シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング', 'その他'],
+  holeState: ['崩壊', '湧水', '逸水', '孔壁不安定', 'ロッド抑留'],
+  testGroups: [
+    { g: '原位置試験', items: ['孔内水平載荷試験', '現場透水試験', 'その他の試験'] },
+    { g: 'サンプリング', items: ['シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング'] },
+    { g: '物理探査・検層', items: ['常時微動測定', 'PS検層(ダウンホール方式)', 'PS検層(孔内起振受振方式)', '密度検層', 'キャリパー検層'] },
+  ],
   tests: ['孔内水平載荷試験', '現場透水試験', 'シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング'],
   geo: ['常時微動測定', 'PS検層(ダウンホール方式)', 'PS検層(孔内起振受振方式)', '密度検層', 'キャリパー検層'],
+};
+const TWS_KINDS = ['シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング'];
+const SHORT = {
+  '孔内水平載荷試験': '孔内水平載荷', '現場透水試験': '透水試験', 'その他の試験': 'その他試験',
+  'シンウォールサンプリング': 'シンウォール', 'デニソンサンプリング': 'デニソン', 'トリプルサンプリング': 'トリプル',
+  '常時微動測定': '常時微動', 'PS検層(ダウンホール方式)': 'PS検層(DH)', 'PS検層(孔内起振受振方式)': 'PS検層(孔内)', '密度検層': '密度検層', 'キャリパー検層': 'キャリパー',
 };
 const MAX_WORKERS = 5, MAX_IV = 6;
 
 /* ---------- データ ---------- */
-let S = { v: 1, sites: [], holes: [], reports: [], names: [] };
-const blankWorker = role => ({ role: role || '', name: '', from: '', to: '', stay: false });
+let S = { v: 2, sites: [], holes: [], reports: [], names: [], places: [] };
+const blankWorker = role => ({ role: role || '', name: '', from: '', to: '', stay: false, mvFrom: '', mvTo: '' });
+const blankCond = () => ({ ashiba: '', hannyu: [], tokusoM: '', monoM: '', yosui: [], engine: '', pump: '', hammer: '', kussaku: '', dia: '', angle: '', slope: '' });
 const blankReport = () => ({
   id: uid(), holeId: '', date: '', no: '1', writer: '', weather: [],
   depth: { prev: '', end: '' },
   water: { before: '', after: '', during: '' },
-  cond: { ashiba: '', hannyu: '', yosui: [], engine: '', pump: '', hammer: '', kussaku: '' },
+  cond: blankCond(),
   casing: [{ d: 'φ140', from: '', to: '' }, { d: 'φ115', from: '', to: '' }, { d: 'φ86', from: '', to: '' }],
   workers: [blankWorker('調査技士'), blankWorker('調査助手'), blankWorker('調査助手'), blankWorker('')],
-  times: [], soils: [], nvals: [], drills: [], samples: [], tests: [], note: '',
+  times: [], soils: [], nvals: [], drills: [], tests: [], rocks: [], note: '',
   createdAt: Date.now(), updatedAt: Date.now(), pdfAt: 0,
 });
+/* 古い版のデータを今の形に直す */
+function migrate(r) {
+  const b = blankReport();
+  for (const k of Object.keys(b)) if (r[k] === undefined) r[k] = clone(b[k]);
+  r.cond = Object.assign(blankCond(), r.cond || {});
+  if (typeof r.cond.hannyu === 'string') r.cond.hannyu = r.cond.hannyu ? [r.cond.hannyu.replace('300m〜500m', '300m以上')] : [];
+  if (!Array.isArray(r.cond.yosui)) r.cond.yosui = [];
+  if (/^湿地 /.test(r.cond.ashiba)) r.cond.ashiba = '湿地';
+  if (r.cond.ashiba === '平坦') r.cond.ashiba = '平坦 30cm以下';
+  r.workers = (r.workers || []).map(w => Object.assign(blankWorker(''), w));
+  if (Array.isArray(r.tests) && r.tests.some(t => typeof t === 'string')) r.tests = r.tests.filter(t => typeof t === 'string').map(k => ({ kind: k, from: '', to: '', memo: '' }));
+  if (Array.isArray(r.samples)) { r.samples.forEach(s => r.tests.push({ kind: s.kind === 'その他' ? 'その他の試験' : s.kind, from: s.from || '', to: s.to || '', memo: s.memo || '' })); delete r.samples; }
+  r.drills.forEach(d => { if (!Array.isArray(d.hole)) d.hole = []; });
+  return r;
+}
 const site = id => S.sites.find(x => x.id === id);
 const hole = id => S.holes.find(x => x.id === id);
 const report = id => S.reports.find(x => x.id === id);
 const byUsed = (a, b) => (b.used || 0) - (a.used || 0);
 const holesOf = sid => S.holes.filter(h => h.siteId === sid).sort(byUsed);
 const reportsOf = hid => S.reports.filter(r => r.holeId === hid).sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.createdAt - a.createdAt);
+const siteReports = sid => S.reports.filter(r => { const h = hole(r.holeId); return h && h.siteId === sid; });
+const isRock = r => { const h = hole(r.holeId); return !!h && h.mode === 'rock'; };
 
 function touch(r) {
   const now = Date.now();
   if (r) { r.updatedAt = now; const h = hole(r.holeId); if (h) { h.used = now; const s = site(h.siteId); if (s) s.used = now; } }
   scheduleSave();
 }
-function rememberName(n) {
+function remember(list, n, dl) {
   n = (n || '').trim(); if (!n) return;
-  S.names = [n, ...S.names.filter(x => x !== n)].slice(0, 40);
+  S[list] = [n, ...S[list].filter(x => x !== n)].slice(0, 40);
+  fillDatalists();
+}
+function fillDatalists() {
   $('#dl-names').innerHTML = S.names.map(x => `<option value="${esc(x)}">`).join('');
+  $('#dl-places').innerHTML = S.places.map(x => `<option value="${esc(x)}">`).join('');
 }
 
 /* ---------- 保存（IndexedDB・自動保存） ---------- */
@@ -279,7 +327,8 @@ async function loadState() {
     catch (e) { res(null); }
   });
   if (!s) { try { const j = localStorage.getItem(DB_NAME); if (j) s = JSON.parse(j); } catch (e) {} }
-  if (s && s.sites) S = Object.assign({ v: 1, sites: [], holes: [], reports: [], names: [] }, s);
+  if (s && s.sites) S = Object.assign({ v: 2, sites: [], holes: [], reports: [], names: [], places: [] }, s);
+  S.reports.forEach(migrate);
 }
 function writeNow() {
   clearTimeout(saveTimer); saveTimer = null;
@@ -319,13 +368,15 @@ function nCalc(t) {
   const s = num(t.start);
   const end = s != null ? s + c / 100 : null;
   const capped = b >= 50 && c < 30;
-  return { b, c, filled, end, capped, label: filled ? (capped ? `${b}/${c}` : `${b}`) : '' };
-}
-function soilFrom(r, i) {
-  const s = r.soils[i];
-  return num(s.from);
+  return { b, c, filled, end, capped };
 }
 function todayLen(r) { const p = num(r.depth.prev) ?? 0, e = num(r.depth.end); return e == null ? null : e - p; }
+/* 土質の一番深い下端を本日の到達深度にする */
+function syncEnd(r) {
+  const ds = r.soils.map(s => num(s.to)).filter(v => v != null);
+  if (ds.length) r.depth.end = f2(Math.max(...ds));
+}
+const sptCount = r => r.nvals.filter(t => num(t.start) != null || nCalc(t).filled).length;
 
 /* ---------- 入力チェック（警告のみ・保存は止めない） ---------- */
 function warnings(r) {
@@ -334,13 +385,13 @@ function warnings(r) {
   if (!r.date) w('basic', '作業日が入っていません');
   else if (S.reports.some(x => x !== r && x.holeId === r.holeId && x.date === r.date)) w('basic', '同じ作業日の日報がほかにもあります');
   if (p != null && e != null && e < p) w('basic', '本日の到達深度が前日より浅くなっています');
+  if (r.cond.hannyu.includes('特装車運搬 300m以上') && !r.cond.tokusoM) w('cond', '特装車運搬（300m以上）の距離が未入力です');
+  if (r.cond.hannyu.includes('モノレール運搬 200m以上') && !r.cond.monoM) w('cond', 'モノレール運搬（200m以上）の距離が未入力です');
   r.casing.forEach(c => { const a = num(c.from), b = num(c.to); if (a != null && b != null && b < a) w('water', `ケーシング${c.d}の深度が逆になっています`); });
-  const wa = num(r.water.before), wb = num(r.water.after);
+  const wb = num(r.water.after);
   if (e != null && wb != null && wb > e + 0.001) w('water', '作業後の孔内水位が到達深度より深くなっています');
-  if (e != null && wa != null && p != null && wa > p + 0.001 && p > 0) w('water', '作業前の孔内水位が前日の深度より深くなっています');
   r.workers.forEach((x, i) => {
-    if (x.from && x.to && x.to <= x.from) w('workers', `${x.name || (i + 1) + '人目'}の作業時間の終了が開始より前です`);
-    if ((x.from || x.to) && !x.name) w('workers', `${i + 1}人目の氏名が未入力です`);
+    if (x.name && x.from && x.to && x.to <= x.from) w('workers', `${x.name}の作業時間の終了が開始より前です`);
   });
   r.times.forEach((t, i) => {
     const n = `${i + 1}件目`;
@@ -355,7 +406,6 @@ function warnings(r) {
     if (b == null) w('soils', `${n}の下端深度が未入力です`);
     if (a != null && b != null && b <= a) w('soils', `${n}の下端が上端より浅くなっています`);
     if (i > 0 && prevTo != null && a != null && Math.abs(a - prevTo) > 0.001) w('soils', `${n}の上端が前の層の下端（${f2(prevTo)}m）とつながっていません`);
-    if (e != null && b != null && b > e + 0.001) w('soils', `${n}が本日の到達深度より深くなっています`);
     prevTo = b;
   });
   let prevS = null;
@@ -374,79 +424,84 @@ function warnings(r) {
     if (e != null && c.end != null && c.end > e + 0.001) w('nvals', `${n}の終了深度が本日の到達深度より深くなっています`);
     prevS = s;
   });
-  const rng = (list, sec, label) => {
+  const rng = (list, sec, overlap) => {
     const ok = [];
     list.forEach((d, i) => {
-      const a = num(d.from), b = num(d.to), n = `${label}${i + 1}件目`;
-      if (a == null || b == null) w(sec, `${n}の区間が未入力です`);
+      const a = num(d.from), b = num(d.to), n = `${i + 1}件目`;
+      if (a == null || b == null) w(sec, `${n}の深度（区間）が未入力です`);
       else if (b <= a) w(sec, `${n}の区間が逆になっています`);
       else ok.push({ a, b, i });
     });
+    if (!overlap) return;
     ok.sort((x, y) => x.a - y.a);
-    for (let k = 1; k < ok.length; k++) if (ok[k].a < ok[k - 1].b - 0.001) w(sec, `${label}${ok[k - 1].i + 1}件目と${ok[k].i + 1}件目の区間が重なっています`);
+    for (let k = 1; k < ok.length; k++) if (ok[k].a < ok[k - 1].b - 0.001) w(sec, `${ok[k - 1].i + 1}件目と${ok[k].i + 1}件目の区間が重なっています`);
   };
-  rng(r.drills, 'drills', '');
-  rng(r.samples, 'samples', '');
-  r.samples.forEach((s, i) => { if (!s.kind) w('samples', `${i + 1}件目の種類が選ばれていません`); });
+  rng(r.drills, 'drills', true);
+  rng(r.tests, 'tests', false);
+  r.tests.forEach((t, i) => { if (!t.kind) w('tests', `${i + 1}件目の種類が選ばれていません`); });
+  if (isRock(r)) rng(r.rocks, 'rocks', true);
   return W;
 }
 
 /* ---------- 項目メニュー ---------- */
 const SECTIONS = [
   { id: 'basic', t: '基本情報', st: r => r.date && r.writer && r.weather.length ? ['入力済', 1] : ['日付・天候・記入者', 0] },
-  { id: 'cond', t: '現場条件', st: r => r.cond.ashiba || r.cond.hannyu || r.cond.kussaku ? ['設定済', 1] : ['足場・搬入・用水など', 0] },
+  { id: 'cond', t: '現場条件', st: r => r.cond.ashiba || r.cond.hannyu.length || r.cond.kussaku ? ['設定済', 1] : ['足場・搬入・掘削方法など', 0] },
   { id: 'water', t: '孔内水位・ケーシング', st: r => { const n = ['before', 'after'].filter(k => r.water[k] !== '').length; return n ? [`水位 ${n}/2`, n === 2] : ['未入力', 0]; } },
-  { id: 'workers', t: '作業員', st: r => { const n = r.workers.filter(x => x.name).length; return n ? [`${n}名`, 1] : ['未入力', 0]; } },
+  { id: 'workers', t: '作業員・移動', st: r => { const n = r.workers.filter(x => x.name).length; return n ? [`${n}名`, 1] : ['未入力', 0]; } },
   { id: 'times', t: '作業時間', st: r => r.times.length ? [`${r.times.length}件`, 1] : ['未入力', 0] },
   { id: 'soils', t: '土質', st: r => r.soils.length ? [`${r.soils.length}層`, 1] : ['未入力', 0] },
   { id: 'nvals', t: 'N値（標準貫入試験）', st: r => r.nvals.length ? [`${r.nvals.length}回`, 1] : ['未入力', 0] },
-  { id: 'drills', t: '掘進状況', st: r => { const p = r.drills.filter(d => d.problem).length; return r.drills.length ? [`${r.drills.length}件${p ? `（問題 ${p}）` : ''}`, 1] : ['未入力', 0]; } },
-  { id: 'samples', t: 'サンプリング', st: r => r.samples.length ? [`${r.samples.length}件`, 1] : ['なし', 0] },
-  { id: 'tests', t: '試験・検層', st: r => { const n = testsOn(r).length; return n ? [`${n}項目`, 1] : ['なし', 0]; } },
+  { id: 'rocks', t: '岩盤掘進記録', rock: true, st: r => r.rocks.length ? [`${r.rocks.length}区間`, 1] : ['未入力', 0] },
+  { id: 'drills', t: '掘進状況・孔内状況', st: r => { const p = r.drills.filter(d => d.problem).length; return r.drills.length ? [`${r.drills.length}件${p ? `（問題 ${p}）` : ''}`, 1] : ['未入力', 0]; } },
+  { id: 'tests', t: '試験・サンプリング・検層', st: r => r.tests.length ? [`${r.tests.length}件`, 1] : ['なし', 0] },
   { id: 'note', t: '備考', st: r => r.note.trim() ? ['入力済', 1] : ['なし', 0] },
 ];
-const secIdx = id => SECTIONS.findIndex(s => s.id === id);
-const testsOn = r => [...new Set([...r.tests, ...r.samples.map(s => s.kind).filter(k => OPT.tests.includes(k))])];
+const secsFor = r => SECTIONS.filter(s => !s.rock || isRock(r));
+const testsOn = r => [...new Set(r.tests.map(t => t.kind).filter(Boolean))];
 
 /* ---------- 画面部品 ---------- */
 const H = {
   fld: (label, inner, hint) => `<div class="fld"><span>${label}</span>${inner}${hint ? `<em class="hint">${hint}</em>` : ''}</div>`,
   txt: (k, v, ph = '', list = '') => `<input type="text" data-k="${k}" value="${esc(v)}" placeholder="${esc(ph)}"${list ? ` list="${list}"` : ''} autocomplete="off">`,
   dec: (k, v, ph = '') => `<input type="text" inputmode="decimal" data-k="${k}" data-num="1" value="${esc(v)}" placeholder="${esc(ph)}" autocomplete="off">`,
-  int: (k, v, ph = '') => `<input type="text" inputmode="numeric" data-k="${k}" data-num="1" value="${esc(v)}" placeholder="${esc(ph)}" autocomplete="off">`,
+  int: (k, v, ph = '', list = '') => `<input type="text" inputmode="numeric" data-k="${k}" data-num="1" value="${esc(v)}" placeholder="${esc(ph)}"${list ? ` list="${list}"` : ''} autocomplete="off">`,
   time: (k, v) => `<input type="time" data-k="${k}" value="${esc(v)}">`,
   area: (k, v, ph = '', rows = 3) => `<textarea data-k="${k}" rows="${rows}" placeholder="${esc(ph)}">${esc(v)}</textarea>`,
   gl: (k, v, ph = '0.00') => `<div class="row"><span class="pre">GL-</span>${H.dec(k, v, ph)}<span class="unit">m</span></div>`,
+  unit: (k, v, unit, ph = '') => `<div class="row">${H.dec(k, v, ph)}<span class="unit">${unit}</span></div>`,
   range: (kf, vf, kt, vt) => `<div class="row"><span class="pre">GL-</span>${H.dec(kf, vf, '上端')}<span class="tilde">〜</span>${H.dec(kt, vt, '下端')}<span class="unit">m</span></div>`,
   chips: (k, opts, cur, multi) => `<div class="chips">${opts.map(o => {
     const on = multi ? (cur || []).includes(o) : cur === o;
     return `<button type="button" class="chip${on ? ' on' : ''}" data-act="${multi ? 'tog' : 'set'}" data-k="${k}" data-v="${esc(o)}">${esc(o)}</button>`;
   }).join('')}</div>`,
-  groups: (k, groups, cur, short) => groups.map(g => `<div class="grp">${esc(g.g)}</div><div class="chips">${g.items.map(o => {
-    const lab = short ? o.replace(g.g + ' ', '').replace(/^(水上|傾斜) /, '') : o;
-    return `<button type="button" class="chip${cur === o ? ' on' : ''}" data-act="set" data-k="${k}" data-v="${esc(o)}">${esc(lab)}</button>`;
-  }).join('')}</div>`).join(''),
+  groups: (k, groups, cur, short, multi, extra = {}) => groups.map(g => `<div class="grp">${esc(g.g)}</div><div class="chips">${g.items.map(o => {
+    const lab = short ? o.replace(g.g + ' ', '') : o;
+    const on = multi ? (cur || []).includes(o) : cur === o;
+    return `<button type="button" class="chip${on ? ' on' : ''}" data-act="${multi ? 'tog' : 'set'}" data-k="${k}" data-v="${esc(o)}">${esc(lab)}</button>`;
+  }).join('')}</div>${extra[g.g] || ''}`).join(''),
 };
 
 /* ---------- 画面の描画 ---------- */
 const app = $('#app');
 let cur = null, curSec = null, route = [];
+let curRoute = location.hash && location.hash.startsWith('#/') ? location.hash : '#/';
+function go(h) { curRoute = h; try { if (location.hash !== h) history.pushState(null, '', h); } catch (e) {} render(); scrollTo(0, 0); }
 function setBar(t1, t2, back) {
   $('#t1').textContent = t1; $('#t2').textContent = t2 || '';
   const b = $('#back'); b.hidden = !back; b.onclick = () => go(back);
 }
 function foot(html) { return `<div class="foot">${html}</div>`; }
 
-let curRoute = location.hash && location.hash.startsWith('#/') ? location.hash : '#/';
-function go(h) { curRoute = h; try { if (location.hash !== h) history.pushState(null, '', h); } catch (e) {} render(); scrollTo(0, 0); }
 function render() {
   const h = curRoute.slice(2).split('/');
   route = h; cur = null; curSec = null;
   const [kind, id, sec] = h;
   if (kind === 's' && site(id)) return renderHoles(site(id));
   if (kind === 'h' && hole(id)) return renderDays(hole(id));
-  if (kind === 'r' && report(id)) { cur = report(id); if (sec && secIdx(sec) >= 0) { curSec = sec; return renderSection(cur, sec); } return renderMenu(cur); }
+  if (kind === 'r' && report(id)) { cur = report(id); if (sec && secsFor(cur).some(s => s.id === sec)) { curSec = sec; return renderSection(cur, sec); } return renderMenu(cur); }
   if (kind === 'v' && report(id)) return renderView(report(id));
+  if (kind === 'w' && site(id) && /^\d{4}-\d{2}-\d{2}$/.test(sec || '')) return renderWeek(site(id), sec);
   return renderSites();
 }
 addEventListener('popstate', () => { const h = location.hash || '#/'; if (h.startsWith('#/') && h !== curRoute) { curRoute = h; render(); scrollTo(0, 0); } });
@@ -484,12 +539,14 @@ function renderHoles(s) {
   const list = holesOf(s.id);
   app.innerHTML = `<ul class="list">${list.map((h, i) => {
       const last = reportsOf(h.id)[0];
-      return `<li class="item"><button class="go" data-go="#/h/${h.id}"><b>${esc(h.name)}${i === 0 && h.used ? '<span class="tag">前回</span>' : ''}</b>
+      return `<li class="item"><button class="go" data-go="#/h/${h.id}"><b>${esc(h.name)}${i === 0 && h.used ? '<span class="tag">前回</span>' : ''}${h.mode === 'rock' ? '<span class="tag rk">岩盤用</span>' : ''}</b>
         <small>${last ? `最終 ${fmtDate(last.date)} ・ GL-${f2(num(last.depth.end)) || '—'}m ・ 日報${reportsOf(h.id).length}日分` : 'まだ日報がありません'}</small></button>
         <button class="more" data-act="holeMenu" data-id="${h.id}" aria-label="孔のメニュー">⋯</button></li>`;
     }).join('') || '<li class="empty">この現場にはまだ孔番号がありません。</li>'}</ul>
     <div style="height:12px"></div>
-    <button class="btn add" data-act="addHole" data-id="${s.id}">＋ 孔番号を追加</button>`;
+    <button class="btn add" data-act="addHole" data-id="${s.id}">＋ 孔番号を追加</button>
+    <h2 class="sec">週報</h2>
+    <button class="btn ghost" data-act="week" data-id="${s.id}">この現場の週報を作る</button>`;
 }
 
 function renderDays(h) {
@@ -504,15 +561,19 @@ function renderDays(h) {
         <div class="meta">GL-${f2(num(r.depth.prev) ?? 0)} → ${r.depth.end ? 'GL-' + f2(num(r.depth.end)) : '未入力'}m
           ${r.pdfAt ? `<span class="tag ok">PDF作成 ${fmtTime(r.pdfAt)}</span>` : ''}${wn ? `<span class="tag w">⚠ ${wn}</span>` : ''}</div>
         <div class="acts"><button class="btn ghost" data-go="#/v/${r.id}">閲覧</button><button class="btn pri" data-go="#/r/${r.id}">編集</button></div></li>`;
-    }).join('') || '<li class="empty">まだ日報がありません。<br>上の「作業日を追加」から始めてください。</li>'}</ul>`;
+    }).join('') || '<li class="empty">まだ日報がありません。<br>上の「作業日を追加」から始めてください。</li>'}</ul>
+    <div style="height:14px"></div>
+    <div class="card"><div class="card-h"><b>この孔の日報の種類</b></div>
+      <div class="chips"><button class="chip${h.mode !== 'rock' ? ' on' : ''}" data-act="mode" data-id="${h.id}" data-v="soil">土砂用</button><button class="chip${h.mode === 'rock' ? ' on' : ''}" data-act="mode" data-id="${h.id}" data-v="rock">岩盤用</button></div>
+      <em class="hint">岩盤用にすると、指定深度ごとの掘進速度・給圧・回転数などを入れる「岩盤掘進記録」が増えます。帳票では掘進状況の欄がこの記録に変わり、掘進状況の内容は観察記録の欄にまとめて記載します。</em></div>`;
 }
 
 function renderMenu(r) {
   const h = hole(r.holeId), s = site(h.siteId);
-  setBar(`${fmtDate(r.date)} の日報`, `${s.name} ／ ${h.name}`, `#/h/${h.id}`);
+  setBar(`${fmtDate(r.date)} の日報`, `${s.name} ／ ${h.name}${isRock(r) ? '（岩盤用）' : ''}`, `#/h/${h.id}`);
   const W = warnings(r);
   app.innerHTML = `${W.length ? `<div class="warnbox">⚠ 確認が必要な項目が ${W.length}件 あります<ul>${W.slice(0, 6).map(x => `<li>${esc(x.msg)}</li>`).join('')}${W.length > 6 ? '<li>ほか…</li>' : ''}</ul></div>` : ''}
-    <div class="tiles">${SECTIONS.map(sec => {
+    <div class="tiles">${secsFor(r).map(sec => {
       const [st, done] = sec.st(r), wn = W.filter(x => x.sec === sec.id).length;
       return `<button class="tile${done ? ' done' : ''}" data-go="#/r/${r.id}/${sec.id}"><b>${sec.t}</b><span class="st">${done ? '✓ ' : ''}${esc(st)}</span>${wn ? `<span class="wn">⚠ ${wn}</span>` : ''}</button>`;
     }).join('')}</div>
@@ -527,7 +588,7 @@ function secWarnHTML(r, sec) {
 }
 
 function renderSection(r, sec) {
-  const h = hole(r.holeId), i = secIdx(sec), def = SECTIONS[i], next = SECTIONS[i + 1];
+  const h = hole(r.holeId), list = secsFor(r), i = list.findIndex(s => s.id === sec), def = list[i], next = list[i + 1];
   setBar(def.t, `${fmtDate(r.date)} ・ ${h.name}`, `#/r/${r.id}`);
   const body = SEC[sec](r);
   const wh = secWarnHTML(r, sec);
@@ -546,18 +607,26 @@ const SEC = {
     </div>
     <div class="card"><div class="card-h"><b>掘進長</b></div>
       ${H.fld('前日の到達深度', H.gl('depth.prev', r.depth.prev), '前の作業日の到達深度を自動で引き継いでいます')}
-      ${H.fld('本日の到達深度（累計）', H.gl('depth.end', r.depth.end))}
+      ${H.fld('本日の到達深度（累計）', H.gl('depth.end', r.depth.end), '土質を入れると、一番深い下端深度が自動で入ります（手で直すこともできます）')}
       <div class="calc">本日の掘進長　<b data-live="today"></b> m</div>
     </div>`,
   cond: r => `<p class="lead">前の作業日の設定を引き継いでいます。変わった日だけ直してください。</p>
     <div class="card"><div class="card-h"><b>足場</b></div>${H.groups('cond.ashiba', OPT.ashiba, r.cond.ashiba, true)}</div>
-    <div class="card"><div class="card-h"><b>搬入方法</b></div>${H.groups('cond.hannyu', OPT.hannyu, r.cond.hannyu, true)}</div>
+    <div class="card"><div class="card-h"><b>地盤勾配・掘進角度</b></div>
+      ${H.fld('地盤勾配', H.unit('cond.slope', r.cond.slope, '°', '例：15'))}
+      ${H.fld('掘進角度', `<div class="row">${H.txt('cond.angle', r.cond.angle, '例：鉛直、または 75')}<span class="unit">°</span></div>
+        <div class="chips sub"><button type="button" class="chip${r.cond.angle === '鉛直' ? ' on' : ''}" data-act="set" data-k="cond.angle" data-v="鉛直">鉛直</button></div>`)}</div>
+    <div class="card"><div class="card-h"><b>搬入方法（複数選べます）</b></div>${H.groups('cond.hannyu', OPT.hannyu, r.cond.hannyu, true, true, {
+      '特装車運搬': `<div class="sub">${H.fld('300m以上のときの距離', H.unit('cond.tokusoM', r.cond.tokusoM, 'm', '例：350'))}</div>`,
+      'モノレール運搬': `<div class="sub">${H.fld('200m以上のときの距離', H.unit('cond.monoM', r.cond.monoM, 'm', '例：250'))}</div>`,
+    })}</div>
     <div class="card"><div class="card-h"><b>作業用水（複数選べます）</b></div>${H.chips('cond.yosui', OPT.yosui, r.cond.yosui, true)}</div>
     <div class="card"><div class="card-h"><b>使用機械</b></div>
       ${H.fld('エンジン', H.txt('cond.engine', r.cond.engine, '機種名など'))}
       ${H.fld('ポンプ', H.txt('cond.pump', r.cond.pump, '機種名など'))}
       ${H.fld('ハンマー落下装置', H.txt('cond.hammer', r.cond.hammer, '機種名など'))}</div>
-    <div class="card"><div class="card-h"><b>掘削方法</b></div>${H.chips('cond.kussaku', OPT.kussaku, r.cond.kussaku)}</div>`,
+    <div class="card"><div class="card-h"><b>掘削方法</b></div>${H.chips('cond.kussaku', OPT.kussaku, r.cond.kussaku)}
+      <div class="sub">${H.fld('主要掘削孔径', `<div class="row"><span class="pre">φ</span>${H.int('cond.dia', r.cond.dia, '例：86', 'dl-dia')}<span class="unit">mm</span></div>`)}</div></div>`,
   water: r => `<div class="card"><div class="card-h"><b>孔内水位</b></div>
       ${H.fld('作業前', H.gl('water.before', r.water.before))}
       ${H.fld('作業後', H.gl('water.after', r.water.after))}
@@ -565,19 +634,20 @@ const SEC = {
     <div class="card"><div class="card-h"><b>ケーシング</b></div>
       ${r.casing.map((c, i) => H.fld(`口径 ${esc(c.d)}`, H.range(`casing.${i}.from`, c.from, `casing.${i}.to`, c.to))).join('')}
       <em class="hint">前の作業日の値を引き継いでいます。</em></div>`,
-  workers: r => `${r.workers.map((x, i) => `<div class="card"><div class="card-h"><b>${i + 1}人目</b><button class="x" data-act="delRow" data-list="workers" data-i="${i}">削除</button></div>
+  workers: r => `<p class="lead">1人目（オペレーター）の作業時間を入れると、ほかの人にも同じ時間が入ります。違う人だけ直してください。</p>
+    ${r.workers.map((x, i) => `<div class="card"><div class="card-h"><b>${i + 1}人目</b><button class="x" data-act="delRow" data-list="workers" data-i="${i}">削除</button></div>
       ${H.fld('職種', H.chips(`workers.${i}.role`, OPT.role, x.role))}
       ${H.fld('氏名', H.txt(`workers.${i}.name`, x.name, '氏名（一度入れると次から候補に出ます）', 'dl-names'))}
       ${H.fld('作業時間', `<div class="row">${H.time(`workers.${i}.from`, x.from)}<span class="tilde">〜</span>${H.time(`workers.${i}.to`, x.to)}</div>`)}
       ${H.fld('宿泊・通勤', `<div class="chips"><button class="chip${x.stay ? ' on' : ''}" data-act="stay" data-i="${i}" data-v="1">宿泊</button><button class="chip${!x.stay ? ' on' : ''}" data-act="stay" data-i="${i}" data-v="0">通勤</button></div>`)}
+      ${H.fld('移動（出発 〜 到着）', `<div class="mv">${H.txt(`workers.${i}.mvFrom`, x.mvFrom, '例：香川県高松市', 'dl-places')}<span class="tilde">〜</span>${H.txt(`workers.${i}.mvTo`, x.mvTo, '例：岡山県岡山市', 'dl-places')}</div>`, '入れた内容は帳票の備考欄に記載されます')}
     </div>`).join('')}
-    ${r.workers.length < MAX_WORKERS ? `<button class="btn add" data-act="addRow" data-list="workers">＋ 作業員を追加</button>` : '<p class="lead">帳票の枠は5名までです。</p>'}
-    ${r.workers.length > 1 ? `<div style="height:10px"></div><button class="btn ghost" data-act="sameTime">1人目の作業時間を全員にそろえる</button>` : ''}`,
-  times: r => `<p class="lead">「何時から何時まで何をしたか」を入れると、帳票の作業時間の欄に自動で線を引きます。</p>
+    ${r.workers.length < MAX_WORKERS ? `<button class="btn add" data-act="addRow" data-list="workers">＋ 作業員を追加</button>` : '<p class="lead">帳票の枠は5名までです。</p>'}`,
+  times: r => `<p class="lead">「何時から何時まで何をしたか」を入れると、帳票の作業時間の欄に自動で線を引きます。週報の午前・午後の作業内容にも使います。</p>
     ${r.times.map((t, i) => `<div class="card"><div class="card-h"><b>${i + 1}件目</b><button class="x" data-act="delRow" data-list="times" data-i="${i}">削除</button></div>
       ${H.fld('時間', `<div class="row">${H.time(`times.${i}.from`, t.from)}<span class="tilde">〜</span>${H.time(`times.${i}.to`, t.to)}</div>`)}
       ${H.fld('工種', H.chips(`times.${i}.kind`, OPT.kind, t.kind))}
-      ${H.fld('作業内容', H.txt(`times.${i}.memo`, t.memo, '例：GL-5.00〜8.00m 掘進'))}
+      ${H.fld('作業内容', H.txt(`times.${i}.memo`, t.memo, '例：フロート足場組立、資機材搬入'))}
     </div>`).join('')}
     <button class="btn add" data-act="addRow" data-list="times">＋ 作業時間を追加</button>`,
   soils: r => `${r.soils.map((s, i) => `<div class="card"><div class="card-h"><b>${i + 1}層目</b><button class="x" data-act="delRow" data-list="soils" data-i="${i}">削除</button></div>
@@ -588,10 +658,8 @@ const SEC = {
       ${H.fld('観察記録・特記事項', H.area(`soils.${i}.note`, s.note, '粒径、含水、締まり具合、気付いたことなど'))}
     </div>`).join('')}
     <button class="btn add" data-act="addRow" data-list="soils">＋ 層を追加</button>
-    <em class="hint" style="margin-top:8px">上端は前の層の下端（1層目は前日の到達深度）が自動で入ります。</em>`,
-  nvals: r => `${r.nvals.map((t, i) => {
-      const c = nCalc(t);
-      return `<div class="card"><div class="card-h"><b>${i + 1}回目</b><button class="x" data-act="delRow" data-list="nvals" data-i="${i}">削除</button></div>
+    <em class="hint" style="margin-top:8px">上端は前の層の下端（1層目は前日の到達深度）が自動で入ります。一番深い下端は本日の到達深度に反映されます。</em>`,
+  nvals: r => `${r.nvals.map((t, i) => `<div class="card"><div class="card-h"><b>${i + 1}回目</b><button class="x" data-act="delRow" data-list="nvals" data-i="${i}">削除</button></div>
       ${H.fld('試験開始深度', H.gl(`nvals.${i}.start`, t.start))}
       <div class="iv"><span class="h">区間</span><span class="h">打撃回数（回）</span><span class="h">貫入量（cm）</span>
         ${t.iv.map((v, j) => `<span class="n">${j + 1}</span>${H.int(`nvals.${i}.iv.${j}.b`, v.b, '回')}${H.dec(`nvals.${i}.iv.${j}.c`, v.c, 'cm')}`).join('')}
@@ -601,35 +669,40 @@ const SEC = {
         ${t.iv.length > 1 ? `<button class="btn ghost sm" data-act="delIv" data-i="${i}">− 区間</button>` : ''}
         <button class="btn ghost sm" data-act="iv5" data-i="${i}">5cm×6区間にする</button>
       </div>
-      <div class="calc" data-live="ntot" data-i="${i}"></div></div>`;
-    }).join('')}
+      <div class="calc" data-live="ntot" data-i="${i}"></div></div>`).join('')}
     <button class="btn add" data-act="addRow" data-list="nvals">＋ 試験を追加</button>
     <em class="hint" style="margin-top:8px">合計が50回になったら、その区間の貫入量を入れて打ち止めにしてください（例：50回／7cm）。</em>`,
-  drills: r => `<p class="lead">掘進した区間ごとに、口径や状況、問題があったかを記録します。</p>
+  rocks: r => `<p class="lead">指定深度ごとに、掘進の条件を記録します。追加すると前の区間（前日を含む）の条件が入るので、変わったところだけ直してください。</p>
+    ${r.rocks.map((x, i) => `<div class="card"><div class="card-h"><b>${i + 1}区間目</b><button class="x" data-act="delRow" data-list="rocks" data-i="${i}">削除</button></div>
+      ${H.fld('区間', H.range(`rocks.${i}.from`, x.from, `rocks.${i}.to`, x.to))}
+      ${H.fld('掘進速度', H.unit(`rocks.${i}.speed`, x.speed, 'cm/時', '例：45'))}
+      ${H.fld('コアチューブ／ビット', H.txt(`rocks.${i}.bit`, x.bit, '例：ダブルコアチューブ／ダイヤモンドビット', 'dl-bit'))}
+      <div class="g2">
+        ${H.fld('給圧', H.unit(`rocks.${i}.press`, x.press, 'MPa'))}
+        ${H.fld('回転数', H.unit(`rocks.${i}.rpm`, x.rpm, 'rpm'))}
+        ${H.fld('送水圧', H.unit(`rocks.${i}.wpress`, x.wpress, 'MPa'))}
+        ${H.fld('送水量', H.unit(`rocks.${i}.wflow`, x.wflow, 'L/min'))}
+        ${H.fld('排水量', H.unit(`rocks.${i}.drain`, x.drain, 'L/min'))}
+        ${H.fld('使用水', H.txt(`rocks.${i}.water`, x.water, '例：清水', 'dl-water'))}
+      </div>
+    </div>`).join('')}
+    <button class="btn add" data-act="addRow" data-list="rocks">＋ 区間を追加</button>`,
+  drills: r => `<p class="lead">掘進した区間ごとに、状況と孔内の様子を記録します。${isRock(r) ? '岩盤用の帳票では、観察記録の欄に深度の近い土質と一緒に記載されます。' : '帳票の掘進状況の欄に、試験・サンプリングと一緒に深度の順で記載されます。'}</p>
     ${r.drills.map((d, i) => `<div class="card"><div class="card-h"><b>${i + 1}件目</b><button class="x" data-act="delRow" data-list="drills" data-i="${i}">削除</button></div>
       ${H.fld('区間', H.range(`drills.${i}.from`, d.from, `drills.${i}.to`, d.to))}
-      ${H.fld('掘削口径', `<div class="row">${H.int(`drills.${i}.dia`, d.dia, '例：86')}<span class="unit">mm</span></div>`)}
+      ${H.fld('孔内状況（複数選べます）', H.chips(`drills.${i}.hole`, OPT.holeState, d.hole, true))}
       ${H.fld('掘進中の問題', `<div class="chips"><button class="chip${!d.problem ? ' on' : ''}" data-act="prob" data-i="${i}" data-v="0">問題なし</button><button class="chip${d.problem ? ' on' : ''}" data-act="prob" data-i="${i}" data-v="1">問題あり</button></div>`)}
-      ${H.fld('状況・特記事項', H.area(`drills.${i}.text`, d.text, d.problem ? '問題の内容（逸水、孔壁崩壊、ロッド抑留など）' : '例：送水掘り、順調', 2))}
+      ${H.fld('状況・特記事項', H.area(`drills.${i}.text`, d.text, d.problem ? '問題の内容（逸水量、崩壊の深さ、対応など）' : '例：送水掘り、順調', 2))}
     </div>`).join('')}
     <button class="btn add" data-act="addRow" data-list="drills">＋ 掘進区間を追加</button>`,
-  samples: r => `${r.samples.map((s, i) => `<div class="card"><div class="card-h"><b>${i + 1}件目</b><button class="x" data-act="delRow" data-list="samples" data-i="${i}">削除</button></div>
-      ${H.fld('種類', H.chips(`samples.${i}.kind`, OPT.sample, s.kind))}
-      ${H.fld('採取深度', H.range(`samples.${i}.from`, s.from, `samples.${i}.to`, s.to))}
-      ${H.fld('メモ', H.txt(`samples.${i}.memo`, s.memo, '試料番号など'))}
+  tests: r => `<p class="lead">試験・サンプリング・検層を1回ずつ追加して、種類と深度を入れます。帳票の該当欄にチェックと深度が入り、${isRock(r) ? '観察記録' : '掘進状況'}の欄にも記載されます。</p>
+    ${r.tests.map((t, i) => `<div class="card"><div class="card-h"><b>${i + 1}件目</b><button class="x" data-act="delRow" data-list="tests" data-i="${i}">削除</button></div>
+      ${H.fld('種類', H.groups(`tests.${i}.kind`, OPT.testGroups, t.kind, false, false))}
+      ${H.fld('深度', H.range(`tests.${i}.from`, t.from, `tests.${i}.to`, t.to))}
+      ${H.fld('メモ', H.txt(`tests.${i}.memo`, t.memo, '試料番号、試験条件など'))}
     </div>`).join('')}
-    <button class="btn add" data-act="addRow" data-list="samples">＋ サンプリングを追加</button>
-    <em class="hint" style="margin-top:8px">ここで入れたサンプリングは、帳票の「試験・サンプリング」欄にも自動でチェックが付きます。</em>`,
-  tests: r => {
-    const auto = r.samples.map(s => s.kind);
-    const tog = (k, lab) => {
-      const a = auto.includes(lab), on = a || r.tests.includes(lab);
-      return `<button class="tog${on ? ' on' : ''}${a ? ' auto' : ''}" data-act="${a ? '' : 'tog'}" data-k="tests" data-v="${esc(lab)}"><span>${esc(lab)}${a ? '<br><small>サンプリングの入力から自動</small>' : ''}</span><span class="bx">${on ? '✓' : ''}</span></button>`;
-    };
-    return `<h2 class="sec" style="margin-top:4px">計測・試験・サンプリング</h2>${OPT.tests.map(x => tog('tests', x)).join('')}
-      <h2 class="sec">物理探査・計測</h2>${OPT.geo.map(x => tog('tests', x)).join('')}`;
-  },
-  note: r => `<div class="card">${H.fld('備考', H.area('note', r.note, '連絡事項、来客、立会い、機械の不具合など', 8))}</div>`,
+    <button class="btn add" data-act="addRow" data-list="tests">＋ 試験・サンプリング・検層を追加</button>`,
+  note: r => `<div class="card">${H.fld('備考', H.area('note', r.note, '連絡事項、来客、立会い、機械の不具合など', 8), '作業員の移動の内容は、帳票ではこの下に自動で付け足されます')}</div>`,
 };
 
 /* 入力中に自動で更新する表示 */
@@ -655,14 +728,27 @@ function onInput(e) {
   if (!k || !cur) return;
   let v = el.value;
   if (e.type === 'change' && el.dataset.num) { const z = z2h(v); if (z !== v) { v = z; el.value = z; } }
+  const op = k.match(/^workers\.0\.(from|to)$/);
+  const old = op ? cur.workers[0][op[1]] : null;
   setPath(cur, k, v);
-  if (e.type === 'change' && (/^workers\.\d+\.name$/.test(k) || k === 'writer')) rememberName(v);
+  if (op) cur.workers.forEach((x, i) => {
+    if (i === 0 || !(x[op[1]] === '' || x[op[1]] === old)) return;
+    x[op[1]] = v; const f = app.querySelector(`[data-k="workers.${i}.${op[1]}"]`); if (f) f.value = v;
+  });
+  if (/^soils\.\d+\.to$/.test(k)) syncEnd(cur);
+  if (e.type === 'change') {
+    if (/^workers\.\d+\.name$/.test(k) || k === 'writer') remember('names', v);
+    if (/^workers\.\d+\.mv(From|To)$/.test(k)) remember('places', v);
+  }
   touch(cur); live();
 }
 app.addEventListener('input', onInput);
 app.addEventListener('change', onInput);
 
 function lastDepth(list, key) { for (let i = list.length - 1; i >= 0; i--) { const v = num(list[i][key]); if (v != null) return v; } return null; }
+function prevReport(r) { return reportsOf(r.holeId).find(x => x !== r && (x.date || '') < (r.date || '')); }
+const sundayOf = ds => { const t = ymd(ds); const d = new Date(t.y, t.m - 1, t.d); d.setDate(d.getDate() - d.getDay()); return dstr(d); };
+const weekDays = sun => { const t = ymd(sun); return Array.from({ length: 7 }, (_, i) => dstr(new Date(t.y, t.m - 1, t.d + i))); };
 
 const ACT = {
   async hideInstall() { lsSet('hideInstall', '1'); render(); },
@@ -684,7 +770,7 @@ const ACT = {
   async addHole(b) {
     const s = site(b.dataset.id);
     const n = await promptText('孔番号を追加', `${s.name} の孔番号`); if (!n) return;
-    const h = { id: uid(), siteId: s.id, name: n, used: Date.now() }; S.holes.push(h); s.used = Date.now(); touch(); go(`#/h/${h.id}`);
+    const h = { id: uid(), siteId: s.id, name: n, mode: 'soil', used: Date.now() }; S.holes.push(h); s.used = Date.now(); touch(); go(`#/h/${h.id}`);
   },
   async holeMenu(b) {
     const h = hole(b.dataset.id);
@@ -696,6 +782,7 @@ const ACT = {
       if (ok) { S.reports = S.reports.filter(r => r.holeId !== h.id); S.holes = S.holes.filter(x => x !== h); touch(); render(); }
     }
   },
+  mode(b) { const h = hole(b.dataset.id); h.mode = b.dataset.v; touch(); rerender(); },
   async addDay(b) {
     const h = hole(b.dataset.id);
     const d = await promptText('作業日を追加', '作業日', todayStr(), 'date'); if (!d) return;
@@ -708,6 +795,11 @@ const ACT = {
     const ok = await ask('この日報を削除しますか？', `${fmtDate(r.date, true)} の日報が消えます。元に戻せません。`, [{ t: '削除する', v: 'y', cls: 'danger' }, { t: 'やめる', v: '' }]);
     if (ok) { const hid = r.holeId; S.reports = S.reports.filter(x => x !== r); touch(); go(`#/h/${hid}`); }
   },
+  async week(b) {
+    const d = await promptText('週報を作る', '週の中の日付を選んでください（日曜〜土曜の週になります）', todayStr(), 'date'); if (!d) return;
+    go(`#/w/${b.dataset.id}/${sundayOf(d)}`);
+  },
+  weekPdf(b) { makeWeekPDF(site(b.dataset.id), b.dataset.sun); },
   set(b) { const k = b.dataset.k, v = b.dataset.v; setPath(cur, k, getPath(cur, k) === v ? '' : v); touch(cur); rerender(); },
   tog(b) {
     if (!b.dataset.k) return;
@@ -716,24 +808,30 @@ const ACT = {
   },
   stay(b) { cur.workers[b.dataset.i].stay = b.dataset.v === '1'; touch(cur); rerender(); },
   prob(b) { cur.drills[b.dataset.i].problem = b.dataset.v === '1'; touch(cur); rerender(); },
-  sameTime() { const f = cur.workers[0]; cur.workers.forEach(x => { x.from = f.from; x.to = f.to; }); touch(cur); rerender(); },
   addRow(b) {
     const r = cur, L = b.dataset.list, prevEnd = num(r.depth.prev) ?? 0;
-    if (L === 'workers') r.workers.push(blankWorker('調査助手'));
+    if (L === 'workers') { const f = r.workers[0]; r.workers.push(Object.assign(blankWorker('調査助手'), f ? { from: f.from, to: f.to } : {})); }
     if (L === 'times') { const last = r.times[r.times.length - 1]; r.times.push({ from: last ? last.to : '08:00', to: '', kind: '', memo: '' }); }
     if (L === 'soils') { const d = lastDepth(r.soils, 'to'); r.soils.push({ from: f2(d ?? prevEnd), to: '', color: '', kubun: '', note: '' }); }
     if (L === 'nvals') { const d = lastDepth(r.nvals, 'start'); r.nvals.push({ start: d != null ? f2(d + 1) : '', iv: [{ b: '', c: '10' }, { b: '', c: '10' }, { b: '', c: '10' }] }); }
-    if (L === 'drills') { const d = lastDepth(r.drills, 'to'), last = r.drills[r.drills.length - 1]; r.drills.push({ from: f2(d ?? prevEnd), to: '', dia: last ? last.dia : '', text: '', problem: false }); }
-    if (L === 'samples') r.samples.push({ kind: '', from: '', to: '', memo: '' });
+    if (L === 'drills') { const d = lastDepth(r.drills, 'to'); r.drills.push({ from: f2(d ?? prevEnd), to: '', hole: [], text: '', problem: false }); }
+    if (L === 'tests') r.tests.push({ kind: '', from: '', to: '', memo: '' });
+    if (L === 'rocks') {
+      let last = r.rocks[r.rocks.length - 1];
+      if (!last) { const p = prevReport(r); last = p && p.rocks && p.rocks[p.rocks.length - 1]; }
+      const d = lastDepth(r.rocks, 'to');
+      r.rocks.push({ from: f2(d ?? prevEnd), to: '', speed: '', bit: last ? last.bit : '', press: last ? last.press : '', rpm: last ? last.rpm : '',
+        wpress: last ? last.wpress : '', wflow: last ? last.wflow : '', drain: last ? last.drain : '', water: last ? last.water : '' });
+    }
     touch(r); render();
     const cards = app.querySelectorAll('.card'); const c = cards[cards.length - 1];
-    if (c) { c.scrollIntoView({ block: 'center' }); }
+    if (c) c.scrollIntoView({ block: 'center' });
   },
   async delRow(b) {
     const L = b.dataset.list, i = +b.dataset.i;
     const ok = await ask('この行を削除しますか？', '', [{ t: '削除する', v: 'y', cls: 'danger' }, { t: 'やめる', v: '' }]);
     if (!ok) return;
-    cur[L].splice(i, 1); touch(cur); rerender();
+    cur[L].splice(i, 1); if (L === 'soils') syncEnd(cur); touch(cur); rerender();
   },
   addIv(b) { const t = cur.nvals[b.dataset.i]; if (t.iv.length < MAX_IV) t.iv.push({ b: '', c: t.iv.length >= 3 && t.iv.every(v => v.c === '5' || v.c === '') ? '5' : '10' }); touch(cur); rerender(); },
   delIv(b) { const t = cur.nvals[b.dataset.i]; if (t.iv.length > 1) t.iv.pop(); touch(cur); rerender(); },
@@ -759,7 +857,7 @@ function newReport(h, date) {
   r.no = String(Math.max(0, ...all.map(x => parseInt(x.no) || 0)) + 1);
   if (prev) {
     r.writer = prev.writer; r.cond = clone(prev.cond); r.casing = clone(prev.casing);
-    r.workers = prev.workers.map(x => ({ role: x.role, name: x.name, from: x.from, to: x.to, stay: x.stay }));
+    r.workers = prev.workers.map(x => ({ role: x.role, name: x.name, from: x.from, to: x.to, stay: x.stay, mvFrom: x.mvFrom || '', mvTo: x.mvTo || '' }));
     r.depth.prev = prev.depth.end || prev.depth.prev || '';
   }
   return r;
@@ -805,7 +903,7 @@ async function shareOrSave(blob, name, type) {
 }
 const inFrame = () => { try { return window.self !== window.top; } catch (e) { return true; } };
 async function trialNotice() {
-  await ask('お試し版では送れません', 'このお試し版では、PDFやデータファイルの保存・送信ができません。GitHub Pagesに置いた版をホーム画面に追加すると使えます。帳票の見た目は「帳票を確認」で見られます。', [{ t: 'OK', v: '' }]);
+  await ask('お試し版では送れません', 'このお試し版では、PDFやデータファイルの保存・送信ができません。GitHub Pagesに置いた版をホーム画面に追加すると使えます。帳票の見た目は「帳票を確認」や週報の画面で見られます。', [{ t: 'OK', v: '' }]);
 }
 const safeName = s => String(s || '').replace(/[\\/:*?"<>|\s]+/g, '_');
 
@@ -814,11 +912,10 @@ async function exportData(holeIds, label) {
   if (inFrame()) return trialNotice();
   if (!holeIds.length) { toast('書き出すデータがありません'); return; }
   const holes = S.holes.filter(h => holeIds.includes(h.id));
-  const data = { app: 'shisui-nippo', v: 1, exportedAt: Date.now(),
-    sites: S.sites.filter(s => holes.some(h => h.siteId === s.id)), holes, reports: S.reports.filter(r => holeIds.includes(r.holeId)), names: S.names };
+  const data = { app: 'shisui-nippo', v: 2, exportedAt: Date.now(),
+    sites: S.sites.filter(s => holes.some(h => h.siteId === s.id)), holes, reports: S.reports.filter(r => holeIds.includes(r.holeId)), names: S.names, places: S.places };
   const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-  const d = new Date();
-  const res = await shareOrSave(blob, `日報データ_${safeName(label)}_${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}.json`, 'application/json');
+  const res = await shareOrSave(blob, `日報データ_${safeName(label)}_${todayStr().replace(/-/g, '')}.json`, 'application/json');
   if (res !== 'cancel') toast('データを書き出しました');
 }
 function importData() {
@@ -842,13 +939,13 @@ async function mergeData(d) {
   for (const h of d.holes || []) {
     const sid = siteMap[h.siteId]; if (!sid) continue;
     let l = S.holes.find(x => x.siteId === sid && x.name === h.name);
-    if (!l) { l = { id: uid(), siteId: sid, name: h.name, used: h.used || Date.now() }; S.holes.push(l); }
+    if (!l) { l = { id: uid(), siteId: sid, name: h.name, mode: h.mode || 'soil', used: h.used || Date.now() }; S.holes.push(l); }
     holeMap[h.id] = l.id;
   }
   for (const r of d.reports) {
     const hid = holeMap[r.holeId]; if (!hid) continue;
     const ex = S.reports.find(x => x.holeId === hid && x.date === r.date);
-    const nr = Object.assign(blankReport(), clone(r), { id: uid(), holeId: hid });
+    const nr = migrate(Object.assign(blankReport(), clone(r), { id: uid(), holeId: hid }));
     if (!ex) { S.reports.push(nr); add++; continue; }
     if (contentKey(ex) === contentKey(nr)) { same++; continue; }
     const h = hole(hid);
@@ -856,29 +953,42 @@ async function mergeData(d) {
       [{ t: `読み込んだデータを残す（更新 ${fmtTime(r.updatedAt)}）`, v: 'in', cls: 'pri' }, { t: `このスマホのデータを残す（更新 ${fmtTime(ex.updatedAt)}）`, v: 'keep' }]);
     if (a === 'in') { S.reports[S.reports.indexOf(ex)] = Object.assign(nr, { id: ex.id }); over++; } else keep++;
   }
-  (d.names || []).slice().reverse().forEach(rememberName);
+  (d.names || []).slice().reverse().forEach(n => remember('names', n));
+  (d.places || []).slice().reverse().forEach(n => remember('places', n));
   touch(); writeNow(); render();
   await ask('読み込みが終わりました', `追加 ${add}日分 ／ 上書き ${over}日分 ／ そのまま ${keep + same}日分`, [{ t: 'OK', v: '' }]);
 }
 
 /* ---------- 帳票（日報様式の再現） ---------- */
 const cb = on => `<span class="cb">${on ? '✓' : ''}</span>`;
+const clip = (html, h, cls = '') => `<div class="clip ${cls}" style="max-height:${h}px">${html}</div>`;
+const rg = (a, b) => (a !== '' || b !== '') ? `GL-${f2(num(a))}〜${f2(num(b))}m ` : '';
 function statusRows(r) {
-  const rg = (a, b) => (a !== '' || b !== '') ? `GL-${f2(num(a))}〜${f2(num(b))}m ` : '';
   return [
-    ...r.drills.map(d => ({ k: num(d.from), dia: d.dia, text: `${rg(d.from, d.to)}${d.text || ''}${d.problem ? '【問題あり】' : ''}` })),
-    ...r.samples.map(s => ({ k: num(s.from), dia: '', text: `${rg(s.from, s.to)}${s.kind}${s.memo ? '（' + s.memo + '）' : ''}` })),
+    ...r.drills.map(d => ({ k: num(d.from), text: `${rg(d.from, d.to)}${d.text || ''}${d.hole && d.hole.length ? '【' + d.hole.join('・') + '】' : ''}${d.problem ? '【問題あり】' : ''}` })),
+    ...r.tests.filter(t => t.kind).map(t => ({ k: num(t.from), text: `${rg(t.from, t.to)}${t.kind}${t.memo ? '（' + t.memo + '）' : ''}` })),
   ].sort((a, b) => (a.k ?? 1e9) - (b.k ?? 1e9));
 }
-function paperPages(r) {
-  const h = hole(r.holeId), s = site(h.siteId), st = statusRows(r);
-  const n = Math.max(1, Math.ceil(Math.max(r.soils.length, r.nvals.length, st.length) / 10));
-  return Array.from({ length: n }, (_, p) => paperPage(r, s, h, st, p, n));
+/* 岩盤用：掘進状況の内容を、深度の合う土質の観察記録にまとめる */
+function mergedNotes(r, st) {
+  const notes = r.soils.map(s => s.note || ''), extra = [];
+  st.forEach(x => {
+    const i = x.k == null ? -1 : r.soils.findIndex(s => { const a = num(s.from), b = num(s.to); return a != null && b != null && x.k >= a - 0.001 && x.k < b - 0.001; });
+    if (i >= 0) notes[i] = (notes[i] ? notes[i] + ' ／ ' : '') + x.text; else extra.push(x.text);
+  });
+  return notes.concat(extra);
 }
-function paperPage(r, s, h, st, p, n) {
+function paperPages(r) {
+  const h = hole(r.holeId), s = site(h.siteId), st = statusRows(r), rock = h.mode === 'rock';
+  const notes = rock ? mergedNotes(r, st) : r.soils.map(x => x.note || '');
+  const rows = Math.max(notes.length, r.soils.length, r.nvals.length, rock ? r.rocks.length : st.length);
+  const n = Math.max(1, Math.ceil(rows / 10));
+  return Array.from({ length: n }, (_, p) => paperPage(r, s, h, { st, notes, rock }, p, n));
+}
+function paperPage(r, s, h, D, p, n) {
   const t = ymd(r.date), rw = t.y ? t.y - 2018 : '';
   const c = r.cond, wx = r.weather, prev = num(r.depth.prev), end = num(r.depth.end), tl = todayLen(r);
-  const tests = testsOn(r);
+  const on = testsOn(r);
   /* 上段 */
   let html = `<div class="paper"><div class="p-title">試　錐　日　報</div>
   <div class="p-no">日報No.：<b class="v">${esc(r.no)}</b>${n > 1 ? `　${p + 1}／${n}枚目` : ''}</div>
@@ -887,60 +997,84 @@ function paperPage(r, s, h, st, p, n) {
      <td class="c" rowspan="2">記入者</td><td class="v c" rowspan="2">${esc(r.writer)}</td>
      <td class="c">作業日</td><td>令和 <b class="v">${rw}</b> 年 <b class="v">${t.m || ''}</b> 月 <b class="v">${t.d || ''}</b> 日（${t.w}）</td></tr>
    <tr><td class="c">天　候</td><td>${OPT.weather.map(x => `${x}${cb(wx.includes(x))}`).join('　')}</td></tr></table>`;
-  /* 掘進長・孔内水位・足場 */
+  /* 掘進長・孔内水位・足場・地盤勾配 */
   const ac = (v, lab, a = '') => `<td${a}>${lab}${cb(c.ashiba === v)}</td>`;
+  const ang = c.angle === '鉛直' ? '鉛直' : c.angle ? esc(c.angle) + '°' : '';
   html += `<div class="blk">
-   <table style="width:230px"><colgroup><col style="width:42px"><col style="width:34px"><col style="width:26px"><col><col style="width:18px"></colgroup>
+   <table style="width:220px"><colgroup><col style="width:40px"><col style="width:32px"><col style="width:24px"><col><col style="width:18px"></colgroup>
     <tr><td class="c" rowspan="3">掘進長</td><td class="c">前日</td><td>GL-</td><td class="v r">${f2(prev ?? 0)}</td><td>m</td></tr>
     <tr><td class="c">本日</td><td></td><td class="v r">${tl == null ? '' : f2(tl)}</td><td>m</td></tr>
     <tr><td class="c">累計</td><td>GL-</td><td class="v r">${end == null ? '' : f2(end)}</td><td>m</td></tr></table>
-   <table style="width:262px"><colgroup><col style="width:46px"><col style="width:84px"><col style="width:26px"><col><col style="width:18px"></colgroup>
+   <table style="width:236px"><colgroup><col style="width:44px"><col style="width:76px"><col style="width:24px"><col><col style="width:18px"></colgroup>
     <tr><td class="c" rowspan="3">孔内水位</td><td class="c">作業前</td><td>GL-</td><td class="v r">${f2(num(r.water.before))}</td><td>m</td></tr>
     <tr><td class="c">作業後</td><td>GL-</td><td class="v r">${f2(num(r.water.after))}</td><td>m</td></tr>
-    <tr><td class="c">作業中（無水）</td><td>GL-</td><td class="v r">${f2(num(r.water.during))}</td><td>m</td></tr></table>
-   <table style="width:561px"><colgroup><col style="width:36px"><col style="width:72px"><col style="width:50px"><col style="width:74px"><col style="width:74px"><col style="width:88px"><col style="width:88px"><col></colgroup>
-    <tr><td class="c" rowspan="3">足場</td><td class="c">平　坦</td><td class="c">湿　地</td><td class="c" colspan="2">傾　斜</td><td class="c" colspan="2">水　上</td><td class="c sm">台船又はフロート</td></tr>
-    <tr>${ac('平坦 30cm以下', '30cm以下')}${ac('湿地', '湿地', ' rowspan="2" class="c"')}${ac('傾斜 15°〜30°', '15°〜30°')}${ac('傾斜 30°〜45°', '30°〜45°')}${ac('水上 水深1m以下', '水深1m以下')}${ac('水上 水深3m以下', '水深3m以下')}${ac('台船', '台　船')}</tr>
-    <tr>${ac('平坦 30cm以上', '30cm以上')}${ac('傾斜 45°〜60°', '45°〜60°')}<td></td>${ac('水上 水深5m以下', '水深5m以下')}${ac('水上 水深10m以下', '水深10m以下')}${ac('フロート', 'フロート')}</tr></table></div>`;
+    <tr><td class="c sm">作業中（無水）</td><td>GL-</td><td class="v r">${f2(num(r.water.during))}</td><td>m</td></tr></table>
+   <table style="width:500px"><colgroup><col style="width:36px"><col style="width:62px"><col style="width:42px"><col style="width:66px"><col style="width:66px"><col style="width:80px"><col style="width:80px"><col></colgroup>
+    <tr><td class="c" rowspan="3">足場</td><td class="c">平　坦</td><td class="c">湿　地</td><td class="c" colspan="2">傾　斜</td><td class="c" colspan="2">水　上</td><td class="c xs">台船又は<br>フロート</td></tr>
+    <tr>${ac('平坦 30cm以下', '30cm以下')}${ac('湿地', '湿地', ' rowspan="2" class="c"')}${ac('傾斜 15°〜30°', '15°〜30°')}${ac('傾斜 30°〜45°', '30°〜45°')}${ac('水上 水深1m以下', '水深1m以下')}${ac('水上 水深3m以下', '水深3m以下')}${ac('台船', '台船')}</tr>
+    <tr>${ac('平坦 30cm以上', '30cm以上')}${ac('傾斜 45°〜60°', '45°〜60°')}<td></td>${ac('水上 水深5m以下', '水深5m以下')}${ac('水上 水深10m以下', '水深10m以下')}${ac('フロート', 'フロート')}</tr></table>
+   <table style="width:90px"><colgroup><col style="width:46px"><col></colgroup>
+    <tr><td class="c sm" style="height:26px">地盤勾配</td><td class="c v">${c.slope ? esc(c.slope) + '°' : ''}</td></tr>
+    <tr><td class="c sm" style="height:26px">掘進角度</td><td class="c v">${ang}</td></tr></table></div>`;
   /* 搬入方法・作業用水・使用機械・掘削方法・ケーシング */
-  const hn = OPT.hannyu;
-  const hnCell = (g, j) => { const x = hn[g].items[j]; return `<td>${esc(x.replace(hn[g].g + ' ', ''))}${cb(c.hannyu === x)}</td>`; };
+  const hn = OPT.hannyu, hs = c.hannyu || [];
+  const hnCell = (g, j) => {
+    const x = hn[g].items[j]; if (!x) return '<td></td>';
+    let lab = esc(x.replace(hn[g].g + ' ', ''));
+    if (x === '特装車運搬 300m以上') lab += ` <b class="v">${esc(c.tokusoM) || '　　'}</b>m`;
+    if (x === 'モノレール運搬 200m以上') lab += ` <b class="v">${esc(c.monoM) || '　　'}</b>m`;
+    return `<td>${lab}${cb(hs.includes(x))}</td>`;
+  };
   html += `<div class="blk">
-   <table style="width:330px"><colgroup><col style="width:40px"><col><col><col></colgroup>
-    <tr><td class="c" rowspan="4">搬入<br>方法</td>${hn.map(g => `<td class="c">${g.g}</td>`).join('')}</tr>
-    ${[0, 1, 2].map(j => `<tr>${[0, 1, 2].map(g => hnCell(g, j)).join('')}</tr>`).join('')}</table>
-   <table style="width:124px"><colgroup><col style="width:34px"><col></colgroup>
-    ${OPT.yosui.map((x, j) => `<tr>${j === 0 ? '<td class="c wrap" rowspan="4" style="vertical-align:middle">作業<br>用水</td>' : ''}<td>${x}${cb(c.yosui.includes(x))}</td></tr>`).join('')}</table>
-   <table style="width:206px"><colgroup><col style="width:92px"><col></colgroup>
+   <table style="width:340px"><colgroup><col style="width:36px"><col style="width:92px"><col style="width:106px"><col></colgroup>
+    <tr><td class="c" rowspan="5">搬入<br>方法</td>${hn.map(g => `<td class="c">${g.g}</td>`).join('')}</tr>
+    ${[0, 1, 2, 3].map(j => `<tr>${[0, 1, 2].map(g => hnCell(g, j)).join('')}</tr>`).join('')}</table>
+   <table style="width:120px"><colgroup><col style="width:34px"><col></colgroup>
+    ${OPT.yosui.map((x, j) => `<tr>${j === 0 ? '<td class="c wrap" rowspan="5" style="vertical-align:middle">作業<br>用水</td>' : ''}<td>${x}${cb(c.yosui.includes(x))}</td></tr>`).join('')}<tr><td></td></tr></table>
+   <table style="width:200px"><colgroup><col style="width:92px"><col></colgroup>
     <tr><td class="c" colspan="2">使 用 機 械</td></tr>
-    <tr><td>エンジン</td><td class="v">${esc(c.engine)}</td></tr><tr><td>ポンプ</td><td class="v">${esc(c.pump)}</td></tr><tr><td>ハンマー落下装置</td><td class="v">${esc(c.hammer)}</td></tr></table>
-   <table style="width:104px"><tr><td class="c">掘削方法</td></tr>${OPT.kussaku.map(x => `<tr><td>${x}${cb(c.kussaku === x)}</td></tr>`).join('')}</table>
-   <table style="width:275px"><colgroup><col style="width:58px"><col style="width:52px"><col></colgroup>
-    <tr><td class="c" rowspan="4">ケーシング</td><td class="c">口径</td><td class="c">深度（GL-m）</td></tr>
-    ${r.casing.map(x => `<tr><td class="c">${esc(x.d)}</td><td class="c"><b class="v">${f2(num(x.from))}</b>　〜　<b class="v">${f2(num(x.to))}</b></td></tr>`).join('')}</table></div>`;
-  /* 本体：土質・N値・掘進状況（10行ずつ） */
+    <tr><td>エンジン</td><td class="v">${esc(c.engine)}</td></tr><tr><td>ポンプ</td><td class="v">${esc(c.pump)}</td></tr><tr><td>ハンマー落下装置</td><td class="v">${esc(c.hammer)}</td></tr><tr><td></td><td></td></tr></table>
+   <table style="width:118px"><tr><td class="c">掘削方法</td></tr>${OPT.kussaku.map(x => `<tr><td>${x}${cb(c.kussaku === x)}</td></tr>`).join('')}
+    <tr><td>主要孔径 φ<b class="v">${esc(c.dia)}</b>mm</td></tr></table>
+   <table style="width:261px"><colgroup><col style="width:58px"><col style="width:52px"><col></colgroup>
+    <tr><td class="c" rowspan="5">ケーシング</td><td class="c">口径</td><td class="c">深度（GL-m）</td></tr>
+    ${r.casing.map(x => `<tr><td class="c">${esc(x.d)}</td><td class="c"><b class="v">${f2(num(x.from))}</b>　〜　<b class="v">${f2(num(x.to))}</b></td></tr>`).join('')}<tr><td></td><td></td></tr></table></div>`;
+  /* 本体：土質・N値・掘進状況（岩盤用は岩盤掘進記録）10行ずつ */
+  const bot = k => `border-bottom-style:${k === 9 ? 'solid' : 'dashed'}`;
   let body = '';
   for (let k = 0; k < 10; k++) {
-    const i = p * 10 + k, so = r.soils[i], nv = r.nvals[i], sr = st[i];
+    const i = p * 10 + k, so = r.soils[i], note = D.notes[i] || '', nv = r.nvals[i];
     const a = so ? num(so.from) : null, b = so ? num(so.to) : null;
     const nc = nv ? nCalc(nv) : null;
     const ivs = Array.from({ length: MAX_IV }, (_, j) => nv && nv.iv[j] ? nv.iv[j] : null);
-    const last = k === 9 ? '' : ' dl';
-    body += `<tr><td class="c v" rowspan="2" style="border-bottom-style:${last ? 'dashed' : 'solid'}">${so ? f2(b) : ''}</td>
-      <td class="c" rowspan="2" style="border-bottom-style:${last ? 'dashed' : 'solid'}">${so && a != null && b != null ? f2(b - a) : ''}</td>
-      <td class="c wrap" rowspan="2" style="border-bottom-style:${last ? 'dashed' : 'solid'}">${so ? esc(so.color) : ''}</td>
-      <td class="wrap" rowspan="2" style="border-bottom-style:${last ? 'dashed' : 'solid'}">${so ? esc(so.kubun) : ''}</td>
-      <td class="wrap" rowspan="2" style="font-size:9px;border-bottom-style:${last ? 'dashed' : 'solid'}">${so ? esc(so.note) : ''}</td>
-      <td class="r v" rowspan="2" style="border-bottom-style:${last ? 'dashed' : 'solid'}">${nv ? f2(num(nv.start)) : ''}<span style="font-weight:normal"> m</span></td>
-      <td class="c sm" style="height:18.5px">回数</td>${ivs.map(v => `<td class="c v">${v ? esc(v.b) : ''}</td>`).join('')}<td class="c v">${nc && nc.filled ? nc.b : ''}</td>
-      <td class="c v" rowspan="2" style="border-bottom-style:${last ? 'dashed' : 'solid'}">${sr ? esc(sr.dia) : ''}</td>
-      <td class="wrap" rowspan="2" style="font-size:9px;border-bottom-style:${last ? 'dashed' : 'solid'}">${sr ? esc(sr.text) : ''}</td></tr>
-      <tr><td class="c sm" style="border-bottom-style:${last ? 'dashed' : 'solid'}">cm</td>${ivs.map(v => `<td class="c" style="border-bottom-style:${last ? 'dashed' : 'solid'}">${v ? esc(v.c) : ''}</td>`).join('')}<td class="c" style="border-bottom-style:${last ? 'dashed' : 'solid'}">${nc && nc.filled ? nc.c : ''}</td></tr>`;
+    let right;
+    if (D.rock) {
+      const x = r.rocks[i];
+      const vv = (val, cls = 'c v') => `<td class="${cls}" rowspan="2" style="${bot(k)}">${x ? esc(val) : ''}</td>`;
+      right = x ? `<td class="c sm" rowspan="2" style="${bot(k)};white-space:normal">${f2(num(x.from))}〜<br>${f2(num(x.to))}</td>${vv(x.speed)}<td class="xs" rowspan="2" style="${bot(k)}">${clip(esc(x.bit), 33)}</td>${vv(x.press)}${vv(x.rpm)}${vv(x.wpress)}${vv(x.wflow)}${vv(x.drain)}<td class="xs c" rowspan="2" style="${bot(k)}">${clip(esc(x.water), 33)}</td>`
+        : Array.from({ length: 9 }, () => `<td rowspan="2" style="${bot(k)}"></td>`).join('');
+    } else {
+      const sr = D.st[i];
+      right = `<td class="wrap" rowspan="2" style="font-size:9px;${bot(k)}">${sr ? clip(esc(sr.text), 33) : ''}</td>`;
+    }
+    body += `<tr><td class="c v" rowspan="2" style="${bot(k)}">${so ? f2(b) : ''}</td>
+      <td class="c" rowspan="2" style="${bot(k)}">${so && a != null && b != null ? f2(b - a) : ''}</td>
+      <td class="c wrap" rowspan="2" style="${bot(k)}">${so ? clip(esc(so.color), 33) : ''}</td>
+      <td class="wrap" rowspan="2" style="${bot(k)}">${so ? clip(esc(so.kubun), 33) : ''}</td>
+      <td class="wrap" rowspan="2" style="font-size:${D.rock ? 8.5 : 9}px;${bot(k)}">${clip(esc(note), 33)}</td>
+      <td class="r v" rowspan="2" style="${bot(k)}">${nv ? f2(num(nv.start)) : ''}<span style="font-weight:normal"> m</span></td>
+      <td class="c sm">回数</td>${ivs.map(v => `<td class="c v">${v ? esc(v.b) : ''}</td>`).join('')}<td class="c v">${nc && nc.filled ? nc.b : ''}</td>
+      ${right}</tr>
+      <tr><td class="c sm" style="${bot(k)}">cm</td>${ivs.map(v => `<td class="c" style="${bot(k)}">${v ? esc(v.c) : ''}</td>`).join('')}<td class="c" style="${bot(k)}">${nc && nc.filled ? nc.c : ''}</td></tr>`;
   }
-  html += `<table style="width:1067px;margin-top:6px"><colgroup><col style="width:48px"><col style="width:44px"><col style="width:48px"><col style="width:84px"><col style="width:236px"><col style="width:54px"><col style="width:30px">${'<col style="width:27px">'.repeat(6)}<col style="width:40px"><col style="width:44px"><col></colgroup>
-    <tr><td class="c" rowspan="2">深度(m)</td><td class="c" rowspan="2">層厚(m)</td><td class="c" rowspan="2">色調</td><td class="c" rowspan="2">地質区分</td><td class="c" rowspan="2">観察記録</td>
-      <td class="c" rowspan="2">深度(m)</td><td class="c" colspan="8">N値内訳</td><td class="c wrap" rowspan="2" style="vertical-align:middle;font-size:9px">掘削口径<br>(mm)</td><td class="c">掘進状況</td></tr>
-    <tr><td class="c sm">項目</td><td class="c" colspan="6">区間毎（10cm／5cm）</td><td class="c">合計</td><td class="c sm">原位置試験、サンプリング等深度</td></tr>
+  const rcols = [52, 30, 72, 28, 28, 28, 30, 30];
+  const rhead = ['深度<br>(m)', '掘進速度<br>(cm/時)', 'コアチューブ<br>／ビット', '給圧<br>(MPa)', '回転数<br>(rpm)', '送水圧<br>(MPa)', '送水量<br>(L/min)', '排水量<br>(L/min)', '使用水'];
+  html += `<table style="width:1067px;margin-top:6px"><colgroup><col style="width:48px"><col style="width:44px"><col style="width:48px"><col style="width:84px"><col style="width:${D.rock ? 214 : 236}px"><col style="width:54px"><col style="width:30px">${'<col style="width:27px">'.repeat(6)}<col style="width:40px">${D.rock ? rcols.map(w => `<col style="width:${w}px">`).join('') : ''}<col></colgroup>
+    <tr><td class="c" rowspan="2">深度(m)</td><td class="c" rowspan="2">層厚(m)</td><td class="c" rowspan="2">色調</td><td class="c" rowspan="2">地質区分</td><td class="c" rowspan="2">観察記録${D.rock ? '<span class="sm">（掘進状況を含む）</span>' : ''}</td>
+      <td class="c" rowspan="2">深度(m)</td><td class="c" colspan="8">N値内訳</td>
+      ${D.rock ? '<td class="c" colspan="9">岩盤掘進記録（指定深度毎）</td>' : '<td class="c">掘進状況</td>'}</tr>
+    <tr><td class="c sm">項目</td><td class="c" colspan="6">区間毎（10cm／5cm）</td><td class="c">合計</td>
+      ${D.rock ? rhead.map(x => `<td class="c xs" style="height:22px;padding:0 1px">${x}</td>`).join('') : '<td class="c sm">原位置試験、サンプリング、孔内状況等（深度順）</td>'}</tr>
     ${body}</table>`;
   /* 下段：作業時間・作業者・備考・試験 */
   if (p === 0) {
@@ -951,6 +1085,12 @@ function paperPage(r, s, h, st, p, n) {
     }).join('');
     const grid = Array.from({ length: H1 - H0 }, (_, j) => `<div class="gl" style="left:${(j + 1) * HW}px"></div>`).join('');
     const ws = Array.from({ length: MAX_WORKERS }, (_, j) => r.workers[j] || null);
+    const mv = r.workers.filter(w => w.name && (w.mvFrom || w.mvTo)).map(w => `移動：${w.name}　${w.mvFrom}〜${w.mvTo}`);
+    const noteHtml = esc([r.note, ...mv].filter(Boolean).join('\n')).replace(/\n/g, '<br>');
+    const chk = k => {
+      const L = r.tests.filter(t => t.kind === k), deps = L.map(t => (t.from || t.to) ? `${f2(num(t.from))}〜${f2(num(t.to))}` : '').filter(Boolean).join(', ');
+      return `${cb(L.length > 0)} ${k.replace('サンプリング', 'ｻﾝﾌﾟﾘﾝｸﾞ')}${L.length > 1 ? ` ×${L.length}` : ''}${deps ? `<br><span class="dep">GL-${deps}</span>` : ''}`;
+    };
     html += `<div class="blk" style="margin-top:7px">
      <table style="width:347px"><colgroup><col style="width:58px">${`<col style="width:${HW}px">`.repeat(H1 - H0 + 1)}</colgroup>
       <tr><td class="r sm" style="height:17px">時間</td><td class="c" colspan="${H1 - H0 + 1}">作業内容</td></tr>
@@ -959,11 +1099,11 @@ function paperPage(r, s, h, st, p, n) {
      <table style="width:282px"><colgroup><col style="width:54px"><col style="width:86px"><col style="width:104px"><col></colgroup>
       <tr><td class="c" colspan="2" rowspan="2">作業者氏名</td><td class="c" style="height:17px">作業時間</td><td class="c sm" rowspan="2">宿泊<br>✓印</td></tr>
       <tr><td class="c sm" style="height:17px">自　〜　至</td></tr>
-      ${ws.map(x => `<tr><td class="c sm" style="height:20px">${x ? esc(x.role) : ''}</td><td class="v">${x ? esc(x.name) : ''}</td><td class="c">${x && (x.from || x.to) ? `${esc(x.from)} 〜 ${esc(x.to)}` : '〜'}</td><td class="c">${x && x.name ? cb(x.stay) : cb(false)}</td></tr>`).join('')}</table>
-     <table style="width:200px"><tr><td class="c" style="height:17px">備　　考</td></tr><tr><td class="wrap" style="height:117px;font-size:9.5px">${esc(r.note).replace(/\n/g, '<br>')}</td></tr></table>
+      ${ws.map(x => `<tr><td class="c sm" style="height:20px">${x ? esc(x.role) : ''}</td><td class="v">${x ? esc(x.name) : ''}</td><td class="c">${x && x.name && (x.from || x.to) ? `${esc(x.from)} 〜 ${esc(x.to)}` : '〜'}</td><td class="c">${cb(!!(x && x.name && x.stay))}</td></tr>`).join('')}</table>
+     <table style="width:200px"><tr><td class="c" style="height:17px">備　　考</td></tr><tr><td class="wrap" style="height:117px;font-size:9px">${clip(noteHtml, 114)}</td></tr></table>
      <table style="width:217px"><colgroup><col style="width:108px"><col></colgroup>
       <tr><td class="c sm wrap" style="height:17px;vertical-align:middle">計測・試験・<br>サンプリング</td><td class="c sm" style="vertical-align:middle">物理探査・計測</td></tr>
-      ${OPT.tests.map((x, j) => `<tr><td class="sm wrap" style="height:23.4px;vertical-align:middle">${cb(tests.includes(x))} ${x.replace('サンプリング', 'ｻﾝﾌﾟﾘﾝｸﾞ')}</td><td class="sm wrap" style="vertical-align:middle">${cb(tests.includes(OPT.geo[j]))} ${OPT.geo[j]}</td></tr>`).join('')}</table>
+      ${OPT.tests.map((x, j) => `<tr><td class="sm wrap" style="height:23.4px;vertical-align:middle">${clip(chk(x), 22)}</td><td class="sm wrap" style="vertical-align:middle">${clip(chk(OPT.geo[j]), 22)}</td></tr>`).join('')}</table>
     </div>`;
   } else {
     html += `<div class="cont">※ 作業時間・作業者・備考・試験の欄は1ページ目に記載しています。</div>`;
@@ -979,20 +1119,115 @@ function renderView(r) {
     <p class="lead">PDFにしたときの見た目です。指で広げると拡大できます。</p>
     <div id="pv"></div>
     ${foot(`<button class="btn ghost" data-go="#/r/${r.id}">編集する</button><button class="btn acc" data-act="pdf" data-id="${r.id}">PDFで送る</button>`)}`;
+  showPaper(paperPages(r));
+}
+function showPaper(pages) {
   const box = $('#pv');
-  const w = Math.min(box.clientWidth || app.clientWidth - 28, 1123), sc = w / 1123;
-  box.innerHTML = paperPages(r).map(x => `<div class="pv" style="width:${w}px;height:${794 * sc}px">${x.replace('<div class="paper">', `<div class="paper" style="transform:scale(${sc})">`)}</div>`).join('');
+  const w = Math.min(box.clientWidth || app.clientWidth - 32, 1123), sc = w / 1123;
+  box.innerHTML = pages.map(x => `<div class="pv" style="width:${w}px;height:${794 * sc}px">${x.replace(/^<div class="paper( wk)?">/, (m, wk) => `<div class="paper${wk || ''}" style="transform:scale(${sc})">`)}</div>`).join('');
+}
+
+/* ---------- 週報 ---------- */
+const tShort = t => (t || '').replace(/^0(\d)/, '$1');
+function countKinds(reps, tws) {
+  const m = {};
+  reps.forEach(r => r.tests.forEach(t => { if (!t.kind || TWS_KINDS.includes(t.kind) !== tws) return; m[t.kind] = (m[t.kind] || 0) + 1; }));
+  return m;
+}
+const countLines = (m, suffix) => Object.entries(m).map(([k, n]) => `${SHORT[k] || k} ${n}${suffix}`);
+const drilled = reps => reps.reduce((a, r) => { const e = num(r.depth.end), p = num(r.depth.prev) ?? 0; return a + (e != null && e > p ? e - p : 0); }, 0);
+function dayContent(reps) {
+  const am = [], pm = [];
+  reps.forEach(r => {
+    const A = [], P = [], hn = hole(r.holeId).name;
+    const times = r.times.filter(t => t.from).sort((a, b) => a.from.localeCompare(b.from));
+    times.forEach(t => { const tx = t.memo || t.kind; if (tx) (hh(t.from) < 12 ? A : P).push(tx); });
+    const p = num(r.depth.prev) ?? 0, e = num(r.depth.end);
+    if (e != null && e > p) { const k = times.find(t => t.kind === '掘進'); ((k && hh(k.from) >= 12) ? P : A).unshift(`GL-${f2(p)}〜${f2(e)}m 掘進`); }
+    const tests = r.tests.filter(t => t.kind).map(t => `${SHORT[t.kind] || t.kind}${t.from || t.to ? ` GL-${f2(num(t.from))}〜${f2(num(t.to))}` : ''}`);
+    if (tests.length) { const k = times.find(t => t.kind === '試験'); ((k && hh(k.from) < 12) ? A : P).push(...tests); }
+    if (r.note.trim()) P.push(...r.note.trim().split('\n'));
+    if (A.length) am.push(`【${hn}】`, ...A);
+    if (P.length) pm.push(`【${hn}】`, ...P);
+  });
+  return { am, pm };
+}
+function dayHours(reps) {
+  let s = null, e = null;
+  reps.forEach(r => {
+    const op = r.workers.find(w => w.role === '調査技士' && (w.from || w.to)) || r.workers.find(w => w.from || w.to);
+    const f = op ? op.from : (r.times.map(t => t.from).filter(Boolean).sort()[0] || '');
+    const t = op ? op.to : (r.times.map(t => t.to).filter(Boolean).sort().pop() || '');
+    if (f && (!s || f < s)) s = f; if (t && (!e || t > e)) e = t;
+  });
+  return { s: tShort(s), e: tShort(e) };
+}
+function strata(sid, end) {
+  const out = [];
+  S.holes.filter(h => h.siteId === sid).sort(byName).forEach(h => {
+    const soils = S.reports.filter(r => r.holeId === h.id && r.date && r.date <= end).flatMap(r => r.soils).filter(s => num(s.to) != null)
+      .sort((a, b) => (num(a.from) ?? 0) - (num(b.from) ?? 0));
+    if (!soils.length) return;
+    out.push({ t: 'h', text: h.name, n: 1 });
+    soils.forEach(s => { const tx = s.kubun || s.color || ''; out.push({ t: 's', d: f2(num(s.from) ?? 0), text: tx, n: Math.max(1, Math.ceil(tx.length / 6)) }); });
+    out.push({ t: 'e', d: f2(Math.max(...soils.map(s => num(s.to)))), n: 1 });
+  });
+  const caps = [48, 36, 36], cols = [[], [], []]; let ci = 0, used = 0;
+  out.forEach(x => { while (ci < 3 && used + x.n > caps[ci]) { ci++; used = 0; } if (ci < 3) { cols[ci].push(x); used += x.n; } });
+  return cols.map(col => col.map(x => x.t === 'h' ? `<div class="sh">${esc(x.text)}</div>` : `<div class="st"><span class="sd">${x.d}</span><span class="sn">${esc(x.text || '')}</span></div>`).join(''));
+}
+function paperWeek(s, sun) {
+  const days = weekDays(sun), end = days[6];
+  const all = siteReports(s.id);
+  const byDay = days.map(d => all.filter(r => r.date === d).sort((a, b) => byName(hole(a.holeId), hole(b.holeId))));
+  const week = byDay.flat(), upto = all.filter(r => r.date && r.date <= end);
+  const chief = [...new Set(week.flatMap(r => r.workers.filter(w => w.role === '調査技士' && w.name).map(w => w.name)))].join('・');
+  const cont = byDay.map(dayContent), hrs = byDay.map(dayHours);
+  const asst = byDay.map(reps => [...new Set(reps.flatMap(r => r.workers.filter(w => w.name && w.role !== '調査技士').map(w => w.name)))]);
+  const ins = byDay.map(reps => countLines(countKinds(reps, false), ''));
+  const tws = byDay.map(reps => countLines(countKinds(reps, true), ''));
+  const spt = byDay.map(reps => reps.reduce((a, r) => a + sptCount(r), 0));
+  const col = strata(s.id, end);
+  const cell = (lines, h) => `<div class="wk-cell" style="max-height:${h}px">${lines.map(esc).join('<br>')}</div>`;
+  const tot = (lines, h) => `<div class="wk-cell" style="max-height:${h}px;text-align:center">${lines.map(esc).join('<br>') || ''}</div>`;
+  const spSum = upto.reduce((a, r) => a + sptCount(r), 0), spWeek = spt.reduce((a, b) => a + b, 0);
+  return `<div class="paper wk"><table style="width:1067px"><colgroup><col style="width:34px"><col style="width:46px">${'<col style="width:101px">'.repeat(7)}<col style="width:96px"><col style="width:92px"><col></colgroup>
+   <tr><td class="c" colspan="2" style="height:22px;font-weight:bold;font-size:12px">週報</td><td colspan="6" style="font-size:11px"><span style="text-decoration:underline;margin-right:14px">件名</span><b class="v" style="font-size:12px">${esc(s.name)}</b></td><td colspan="4" style="font-size:11px"><span style="margin-right:14px">責任者</span><b class="v" style="font-size:12px">${esc(chief)}</b></td></tr>
+   <tr><td class="c" colspan="2">曜日</td>${WD.map(x => `<td class="c">${x}</td>`).join('')}<td class="c">地層</td><td class="c">地層</td><td class="c">地層</td></tr>
+   <tr><td class="c" colspan="2">月日</td>${days.map(d => { const t = ymd(d); return `<td class="c">${t.m}月${t.d}日</td>`; }).join('')}
+     <td rowspan="9" class="wrap" style="padding:2px 3px">${clip(col[0], 650)}</td><td rowspan="4" class="wrap" style="padding:2px 3px">${clip(col[1], 495)}</td><td rowspan="4" class="wrap" style="padding:2px 3px">${clip(col[2], 495)}</td></tr>
+   <tr><td class="vt" rowspan="4">作<br>業<br><br>内<br><br>容</td><td class="c">時間</td>${hrs.map(x => `<td class="c">${x.s}</td>`).join('')}</tr>
+   <tr><td class="c">午前</td>${cont.map((x, i) => `<td class="wrap" style="height:250px">${cell(byDay[i].length ? x.am : ['休み'], 246)}</td>`).join('')}</tr>
+   <tr><td class="c">午後</td>${cont.map(x => `<td class="wrap" style="height:250px">${cell(x.pm, 246)}</td>`).join('')}</tr>
+   <tr><td class="c">時間</td>${hrs.map(x => `<td class="c">${x.e}</td>`).join('')}<td class="c">計</td><td class="c">累計</td></tr>
+   <tr><td class="c" colspan="2" style="height:44px">助手</td>${asst.map(x => `<td class="wrap c">${cell(x, 40)}</td>`).join('')}
+     <td class="c v">${week.length ? f2(drilled(week)) + 'm' : ''}</td><td class="c v">${upto.length ? f2(drilled(upto)) + 'm' : ''}</td></tr>
+   <tr><td class="c" colspan="2" style="height:44px">原位置<br>試験</td>${ins.map(x => `<td class="wrap c">${cell(x, 40)}</td>`).join('')}
+     <td class="wrap">${tot(countLines(countKinds(week, false), '回'), 40)}</td><td class="wrap">${tot(countLines(countKinds(upto, false), '回'), 40)}</td></tr>
+   <tr><td class="c" colspan="2" style="height:32px">TWS</td>${tws.map(x => `<td class="wrap c">${cell(x, 28)}</td>`).join('')}
+     <td class="wrap">${tot(countLines(countKinds(week, true), '回'), 28)}</td><td class="wrap">${tot(countLines(countKinds(upto, true), '回'), 28)}</td></tr>
+   <tr><td class="c" colspan="2" style="height:30px">SPT</td>${spt.map(n => `<td class="c">${n || ''}</td>`).join('')}<td class="c v">${spWeek ? spWeek + '回' : ''}</td><td class="c v">${spSum ? spSum + '回' : ''}</td></tr>
+  </table></div>`;
+}
+function renderWeek(s, sun) {
+  const days = weekDays(sun), a = ymd(days[0]), b = ymd(days[6]);
+  const shift = n => { const t = ymd(sun); return dstr(new Date(t.y, t.m - 1, t.d + n)); };
+  setBar('週報', `${s.name} ・ ${a.m}/${a.d}〜${b.m}/${b.d}`, `#/s/${s.id}`);
+  app.innerHTML = `<div class="wknav"><button class="btn ghost sm" style="width:100%" data-go="#/w/${s.id}/${shift(-7)}">‹ 前の週</button><button class="btn ghost sm" style="width:100%" data-go="#/w/${s.id}/${shift(7)}">次の週 ›</button></div>
+    <p class="lead">${a.y}年${a.m}月${a.d}日（日）〜${b.m}月${b.d}日（土）の週報です。このスマホに入っている日報から作っています。</p>
+    <div id="pv"></div>
+    ${foot(`<button class="btn acc" data-act="weekPdf" data-id="${s.id}" data-sun="${sun}">週報をPDFで送る</button>`)}`;
+  showPaper([paperWeek(s, sun)]);
 }
 
 /* ---------- PDF作成 ---------- */
 function loadScript(src) {
   return new Promise((res, rej) => { if (document.querySelector(`script[src="${src}"]`)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
 }
-async function buildPDF(r) {
+async function buildPDF(pages) {
   await loadScript('lib/html2canvas.min.js');
   await loadScript('lib/jspdf.umd.min.js');
   const host = $('#paper-host');
-  const pages = paperPages(r);
   const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
   for (let i = 0; i < pages.length; i++) {
     host.innerHTML = pages[i];
@@ -1001,8 +1236,23 @@ async function buildPDF(r) {
     pdf.addImage(cv.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 297, 210);
   }
   host.innerHTML = '';
-  const h = hole(r.holeId), s = site(h.siteId);
-  return { blob: pdf.output('blob'), name: `試錐日報_${safeName(s.name)}_${safeName(h.name)}_${(r.date || '').replace(/-/g, '')}.pdf` };
+  return pdf.output('blob');
+}
+async function sendPDF(pages, name) {
+  $('#busy').hidden = false;
+  try {
+    if (saveTimer) writeNow();
+    const blob = await buildPDF(pages);
+    $('#busy').hidden = true;
+    const res = await shareOrSave(blob, name, 'application/pdf');
+    if (res !== 'cancel') toast(res === 'shared' ? 'PDFを送りました' : 'PDFを保存しました');
+    return res;
+  } catch (e) {
+    console.error(e);
+    $('#busy').hidden = true;
+    await ask('PDFを作れませんでした', '一度アプリを閉じて開き直してから、もう一度お試しください。', [{ t: 'OK', v: '' }]);
+    return 'error';
+  }
 }
 async function makePDF(r) {
   if (inFrame()) return trialNotice();
@@ -1012,24 +1262,20 @@ async function makePDF(r) {
       [{ t: 'このままPDFを作る', v: 'go', cls: 'acc' }, { t: '戻って直す', v: '' }]);
     if (!a) return;
   }
-  $('#busy').hidden = false;
-  try {
-    if (saveTimer) writeNow();
-    const { blob, name } = await buildPDF(r);
-    $('#busy').hidden = true;
-    const res = await shareOrSave(blob, name, 'application/pdf');
-    if (res !== 'cancel') { r.pdfAt = Date.now(); touch(); toast(res === 'shared' ? 'PDFを送りました' : 'PDFを保存しました'); }
-  } catch (e) {
-    console.error(e);
-    $('#busy').hidden = true;
-    await ask('PDFを作れませんでした', '一度アプリを閉じて開き直してから、もう一度お試しください。', [{ t: 'OK', v: '' }]);
-  }
+  const h = hole(r.holeId), s = site(h.siteId);
+  const res = await sendPDF(paperPages(r), `試錐日報_${safeName(s.name)}_${safeName(h.name)}_${(r.date || '').replace(/-/g, '')}.pdf`);
+  if (res === 'shared' || res === 'saved') { r.pdfAt = Date.now(); touch(); }
+}
+async function makeWeekPDF(s, sun) {
+  if (inFrame()) return trialNotice();
+  const days = weekDays(sun);
+  await sendPDF([paperWeek(s, sun)], `週報_${safeName(s.name)}_${days[0].replace(/-/g, '')}-${days[6].replace(/-/g, '')}.pdf`);
 }
 
 /* ---------- 起動 ---------- */
 (async function start() {
   await loadState();
-  $('#dl-names').innerHTML = S.names.map(x => `<option value="${esc(x)}">`).join('');
+  fillDatalists();
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
   render();
   $('#saved').textContent = '';
