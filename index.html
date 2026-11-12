@@ -199,7 +199,7 @@ input[type=time],input[type=date]{min-width:0}
 
 <script>
 'use strict';
-const APP_VERSION = '0.3.0';
+const APP_VERSION = '0.3.1';
 
 /* ---------- 基本ユーティリティ ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -260,7 +260,7 @@ const MAX_WORKERS = 5, MAX_IV = 6;
 
 /* ---------- データ ---------- */
 let S = { v: 2, sites: [], holes: [], reports: [], names: [], places: [] };
-const blankWorker = role => ({ role: role || '', name: '', from: '', to: '', stay: false, mv: '' });
+const blankWorker = role => ({ role: role || '', name: '', from: '', to: '', stay: null, mv: null });
 const blankCond = () => ({ ashiba: '', hannyu: [], tokusoM: '', monoM: '', hannyuEtc: '', yosui: [], yosuiEtc: '', drill: '', engine: '', pump: '', hammer: '', kussaku: '', dia: '', angle: '', slope: '' });
 const blankReport = () => ({
   id: uid(), holeId: '', date: '', no: '1', writer: '', weather: [], status: '通常',
@@ -282,7 +282,7 @@ function migrate(r) {
   r.cond.hannyu = r.cond.hannyu.map(x => x === 'モノレール運搬 200m以上' ? ((num(r.cond.monoM) ?? 300) >= 300 ? 'モノレール運搬 300m以上' : 'モノレール運搬 200m〜300m') : x);
   if (/^湿地 /.test(r.cond.ashiba)) r.cond.ashiba = '湿地';
   if (r.cond.ashiba === '平坦') r.cond.ashiba = '平坦 30cm以下';
-  r.workers = (r.workers || []).map(w => Object.assign(blankWorker(''), w));
+  r.workers = (r.workers || []).map(w => Object.assign(blankWorker(''), { stay: false, mv: '' }, w));
   r.workers.forEach(w => { if (!w.mv && (w.mvFrom || w.mvTo)) w.mv = [w.mvFrom, w.mvTo].filter(Boolean).join('〜'); delete w.mvFrom; delete w.mvTo; });
   r.soils.forEach(x => { if (x.cont === undefined) x.cont = false; });
   if (Array.isArray(r.tests) && r.tests.some(t => typeof t === 'string')) r.tests = r.tests.filter(t => typeof t === 'string').map(k => ({ kind: k, from: '', to: '', memo: '' }));
@@ -397,11 +397,12 @@ function warnings(r) {
   if (r.cond.hannyu.includes('モノレール運搬 300m以上') && !r.cond.monoM) w('cond', 'モノレール運搬（300m以上）の架設延長が未入力です');
   if (r.cond.hannyu.includes('その他') && !r.cond.hannyuEtc.trim()) w('cond', '搬入方法の「その他」の内容が未入力です');
   if (r.cond.yosui.includes('その他') && !r.cond.yosuiEtc.trim()) w('cond', '作業用水の「その他」の内容が未入力です');
-  r.casing.forEach(c => { const a = num(c.from), b = num(c.to); if (a != null && b != null && b < a) w('water', `ケーシング${c.d}の深度が逆になっています`); });
   const wb = num(r.water.after);
   if (e != null && wb != null && wb > e + 0.001) w('water', '作業後の孔内水位が到達深度より深くなっています');
   r.workers.forEach((x, i) => {
     if (x.name && x.from && x.to && x.to <= x.from) w('workers', `${x.name}の作業時間の終了が開始より前です`);
+    if (x.name && x.stay == null) w('workers', `${x.name}の宿泊・通勤が選ばれていません`);
+    if (x.name && x.mv == null) w('workers', `${x.name}の移動が選ばれていません（移動しなかった日は「移動なし」）`);
   });
   r.times.forEach((t, i) => {
     const n = `${i + 1}件目`;
@@ -606,9 +607,10 @@ function renderSection(r, sec) {
 /* 各入力画面 */
 const lockGL = v => `<div class="row"><span class="pre">GL-</span><span class="lock">${f2(num(v)) || '—'}</span><span class="unit">m</span></div>`;
 function routeSelect(r, i, v) {
-  const s = site(hole(r.holeId).siteId), rs = s.routes || [], opts = ['', ...rs];
-  if (v && !rs.includes(v)) opts.push(v);
-  return `<select data-k="workers.${i}.mv" aria-label="移動の区間">${opts.map(o => `<option value="${esc(o)}"${o === v ? ' selected' : ''}>${o ? esc(o) : '移動なし'}</option>`).join('')}<option value="__new">＋ 新しい区間を追加…</option></select>`;
+  const s = site(hole(r.holeId).siteId), rs = s.routes || [];
+  const opts = [['__unset', '（選んでください）', v == null], ['', '移動なし', v === ''], ...rs.map(o => [o, o, o === v])];
+  if (v && !rs.includes(v)) opts.push([v, v, true]);
+  return `<select data-k="workers.${i}.mv" aria-label="移動の区間">${opts.map(([val, lab, sel]) => `<option value="${esc(val)}"${sel ? ' selected' : ''}>${esc(lab)}</option>`).join('')}<option value="__new">＋ 新しい区間を追加…</option></select>`;
 }
 const SEC = {
   basic: r => `<div class="card">
@@ -648,15 +650,15 @@ const SEC = {
       ${H.fld('作業後', H.gl('water.after', r.water.after))}
       ${H.fld('作業中（無水）', H.gl('water.during', r.water.during), '無水掘りのときなど、必要な場合だけ入力')}</div>
     <div class="card"><div class="card-h"><b>ケーシング</b></div>
-      ${r.casing.map((c, i) => H.fld(`口径 ${esc(c.d)}`, H.range(`casing.${i}.from`, c.from, `casing.${i}.to`, c.to))).join('')}
-      <em class="hint">前の作業日の値を引き継いでいます。</em></div>`,
-  workers: r => `<p class="lead">1人目（オペレーター）の作業時間を入れると、ほかの人にも同じ時間が入ります。違う人だけ直してください。</p>
+      ${r.casing.map((c, i) => H.fld(`口径 ${esc(c.d)}（地表から）`, H.gl(`casing.${i}.to`, c.to, '挿入深度'))).join('')}
+      <em class="hint">地表面からの挿入深度だけを入れます。前の作業日の値を引き継いでいます。</em></div>`,
+  workers: r => `<p class="lead">1人目（オペレーター）の作業時間を入れると、ほかの人にも同じ時間が入ります。違う人だけ直してください。宿泊・通勤と移動は前の日から引き継がないので、毎日選んでください。</p>
     ${r.workers.map((x, i) => `<div class="card"><div class="card-h"><b>${i + 1}人目</b><button class="x" data-act="delRow" data-list="workers" data-i="${i}">削除</button></div>
       ${H.fld('職種', H.chips(`workers.${i}.role`, OPT.role, x.role))}
       ${H.fld('氏名', H.txt(`workers.${i}.name`, x.name, '氏名（一度入れると次から候補に出ます）', 'dl-names'))}
       ${H.fld('作業時間', `<div class="row">${H.time(`workers.${i}.from`, x.from)}<span class="tilde">〜</span>${H.time(`workers.${i}.to`, x.to)}</div>`)}
-      ${H.fld('宿泊・通勤', `<div class="chips"><button class="chip${x.stay ? ' on' : ''}" data-act="stay" data-i="${i}" data-v="1">宿泊</button><button class="chip${!x.stay ? ' on' : ''}" data-act="stay" data-i="${i}" data-v="0">通勤</button></div>`)}
-      ${H.fld('移動（移動した日だけ選ぶ）', routeSelect(r, i, x.mv), '行きも帰りも同じ区間を選んでください。帳票の備考欄に記載されます')}
+      ${H.fld(`宿泊・通勤${x.name && x.stay == null ? '<span class="tag w">毎日選んでください</span>' : ''}`, `<div class="chips"><button class="chip${x.stay === true ? ' on' : ''}" data-act="stay" data-i="${i}" data-v="1">宿泊</button><button class="chip${x.stay === false ? ' on' : ''}" data-act="stay" data-i="${i}" data-v="0">通勤</button></div>`)}
+      ${H.fld(`移動${x.name && x.mv == null ? '<span class="tag w">毎日選んでください</span>' : ''}`, routeSelect(r, i, x.mv), '移動しなかった日は「移動なし」を選びます。行きも帰りも同じ区間です。帳票の備考欄に記載されます')}
     </div>`).join('')}
     ${r.workers.length < MAX_WORKERS ? `<button class="btn add" data-act="addRow" data-list="workers">＋ 作業員を追加</button>` : '<p class="lead">帳票の枠は5名までです。</p>'}`,
   times: r => `<p class="lead">「何時から何時まで何をしたか」を入れると、帳票の作業時間の欄に自動で線を引きます。週報の午前・午後の作業内容にも使います。</p>
@@ -753,7 +755,8 @@ function onInput(e) {
   if (!k || !cur) return;
   let v = el.value;
   if (e.type === 'change' && el.dataset.num) { const z = z2h(v); if (z !== v) { v = z; el.value = z; } }
-  if (/^workers\.\d+\.mv$/.test(k) && v === '__new') { el.value = getPath(cur, k) || ''; addRoute(k); return; }
+  if (/^workers\.\d+\.mv$/.test(k) && v === '__new') { const o = getPath(cur, k); el.value = o == null ? '__unset' : o; addRoute(k); return; }
+  if (/^workers\.\d+\.mv$/.test(k) && v === '__unset') { setPath(cur, k, null); touch(cur); rerender(); return; }
   const op = k.match(/^workers\.0\.(from|to)$/);
   const old = op ? cur.workers[0][op[1]] : null;
   setPath(cur, k, v);
@@ -904,7 +907,7 @@ function newReport(h, date) {
   r.no = String(Math.max(0, ...all.map(x => parseInt(x.no) || 0)) + 1);
   if (prev) {
     r.writer = prev.writer; r.cond = clone(prev.cond); r.casing = clone(prev.casing);
-    r.workers = prev.workers.map(x => ({ role: x.role, name: x.name, from: x.from, to: x.to, stay: x.stay, mv: '' }));
+    r.workers = prev.workers.map(x => ({ role: x.role, name: x.name, from: x.from, to: x.to, stay: null, mv: null }));
     r.depth.prev = prev.depth.end || prev.depth.prev || '';
   }
   return r;
@@ -1088,7 +1091,7 @@ function paperPage(r, s, h, D, p, n) {
     <tr><td>主要孔径 φ<b class="v">${esc(c.dia)}</b>mm</td></tr></table>
    <table style="width:261px"><colgroup><col style="width:58px"><col style="width:52px"><col></colgroup>
     <tr><td class="c" rowspan="5">ケーシング</td><td class="c">口径</td><td class="c">深度（GL-m）</td></tr>
-    ${r.casing.map(x => `<tr><td class="c">${esc(x.d)}</td><td class="c"><b class="v">${f2(num(x.from))}</b>　〜　<b class="v">${f2(num(x.to))}</b></td></tr>`).join('')}<tr><td></td><td></td></tr></table></div>`;
+    ${r.casing.map(x => `<tr><td class="c">${esc(x.d)}</td><td class="c">${num(x.to) != null ? `0.00　〜　<b class="v">${f2(num(x.to))}</b>` : '〜'}</td></tr>`).join('')}<tr><td></td><td></td></tr></table></div>`;
   /* 本体：土質・N値・掘進状況（岩盤用は岩盤掘進記録）10行ずつ */
   const bot = k => `border-bottom-style:${k === 9 ? 'solid' : 'dashed'}`;
   let body = '';
@@ -1585,6 +1588,24 @@ const SOIL_CODE = {
   'シルト質砂': ['SM', '531231030'], '砂混じり粘土': ['CH-S', '532120002'], '玉石混じり砂礫': ['GS-B', '531120009'],
 };
 const soilKey = n => (n || '').trim().replace(/混り/g, '混じり');
+/* 土質記号：地質調査資料整理要領（案）の土質区分コード表に合わせる（第1分類＋第2分類「〜質」＋第3分類「〜混じり」） */
+const SYM_MAIN = [['高有機質土', 'Pt'], ['腐植土', 'Pt'], ['火山灰質粘性土', 'V'], ['有機質土', 'O'], ['軟岩', 'WR'], ['風化岩', 'WR'], ['中硬岩', 'MR'], ['硬岩', 'HR'],
+  ['礫質土', 'GF'], ['砂質土', 'SF'], ['粘性土', 'C'], ['硬質粘土', 'HC'], ['固結粘土', 'CC'], ['砂礫', 'GS'], ['粗礫', 'CG'], ['中礫', 'MG'], ['細礫', 'FG'], ['粗砂', 'CS'], ['中砂', 'MS'], ['細砂', 'FS'],
+  ['シルト', 'M'], ['粘土', 'CH'], ['泥炭', 'Pt'], ['黒泥', 'Mk'], ['玉石', 'B'], ['浮石', 'Pm'], ['軽石', 'Pm'], ['シラス', 'Si'], ['スコリア', 'Sc'], ['火山灰', 'VA'], ['ローム', 'Lm'], ['黒ボク', 'Kb'],
+  ['真砂土', 'WG'], ['マサ', 'WG'], ['廃棄物', 'W'], ['改良土', 'I'], ['瓦礫', 'BG'], ['盛土', 'BS'], ['埋土', 'FI'], ['表土', 'SF'], ['空洞', 'CV'], ['礫', 'G'], ['砂', 'S']];
+const SYM_SHITSU = [['礫', 'G'], ['砂', 'S'], ['シルト', 'M'], ['粘土', 'C'], ['有機', 'O'], ['火山灰', 'V']];
+const SYM_MAJIRI = [['玉石', 'B'], ['砂利', 'G'], ['礫', 'G'], ['シルト', 'M'], ['粘土', 'C'], ['有機質土', 'O'], ['有機質', 'O'], ['火山灰', 'V'], ['貝殻', 'Sh'], ['砂', 'S']];
+function soilSymbol(name) {
+  const n = soilKey(name); if (!n) return '';
+  const k = n.lastIndexOf('混じり'), pre = k >= 0 ? n.slice(0, k) : '', rest = k >= 0 ? n.slice(k + 3) : n;
+  const main = SYM_MAIN.filter(([w]) => rest.endsWith(w)).sort((a, b) => b[0].length - a[0].length)[0];
+  if (!main) return '';
+  let head = rest.slice(0, rest.length - main[0].length), sym = main[1];
+  SYM_SHITSU.forEach(([w, c]) => { if (head.includes(w + '質')) { sym += c; head = head.replace(w + '質', ''); } });
+  const mods = []; let p = pre;
+  while (p) { const m = SYM_MAJIRI.find(([w]) => p.startsWith(w)); if (!m) break; if (!mods.includes(m[1])) mods.push(m[1]); p = p.slice(m[0].length); }
+  return sym + mods.map(c => '-' + c).join('');
+}
 const xe = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\r?\n/g, '\\n');
 function buildXML(h) {
   const s = site(h.siteId), D = colData(h), reps = D.reps;
@@ -1614,8 +1635,8 @@ function buildXML(h) {
   o(1, '<コア情報>');
   const P = '工学的地質区分名現場土質名';
   D.layers.forEach(l => {
-    const cd = SOIL_CODE[soilKey(l.kubun)] || ['', ''];
-    o(2, `<${P}>`); o(3, el(`${P}_下端深度`, f2(l.to))); o(3, el(`${P}_${P}`, l.kubun)); if (cd[0]) o(3, el(`${P}_${P}記号`, cd[0]));
+    const cd = SOIL_CODE[soilKey(l.kubun)] || ['', ''], sym = soilSymbol(l.kubun) || cd[0];
+    o(2, `<${P}>`); o(3, el(`${P}_下端深度`, f2(l.to))); o(3, el(`${P}_${P}`, l.kubun)); if (sym) o(3, el(`${P}_${P}記号`, sym));
     o(3, `<${P}_岩石群>`); o(4, el(`${P}_岩石群コード`, '1')); o(4, `<${P}_岩石土コード>`);
     o(5, el(`${P}_岩相`, '')); o(5, el(`${P}_岩石`, cd[1])); o(5, el(`${P}_変成岩岩相`, '')); o(5, el(`${P}_変成岩岩石`, ''));
     o(4, `</${P}_岩石土コード>`); o(3, `</${P}_岩石群>`); o(2, `</${P}>`);

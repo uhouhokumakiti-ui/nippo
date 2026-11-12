@@ -1,7 +1,7 @@
 /* 試錐日報 サービスワーカー
    アプリを更新したときは VERSION の数字を上げてください。
    次に電波のある場所でアプリを開いたとき、新しい版に切り替わります。 */
-const VERSION = '0.3.0';
+const VERSION = '0.3.1';
 const CACHE = 'shisui-nippo-' + VERSION;
 const ASSETS = [
   './',
