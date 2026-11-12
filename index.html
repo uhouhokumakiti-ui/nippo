@@ -90,7 +90,7 @@ p.lead{margin:2px 2px 12px;color:var(--sub);font-size:15px}
 .fld:last-child{margin-bottom:0}
 .fld>span{display:block;font-size:13.5px;color:var(--sub);font-weight:700;margin-bottom:5px}
 .hint{display:block;font-style:normal;font-size:12.5px;color:var(--sub);margin-top:4px}
-input,textarea{width:100%;font:inherit;font-size:18px;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--inbg);color:var(--ink);min-height:52px}
+input,textarea,select{width:100%;font:inherit;font-size:18px;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--inbg);color:var(--ink);min-height:52px}
 textarea{min-height:96px;resize:vertical;line-height:1.5}
 input:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px color-mix(in srgb,var(--pri) 25%,transparent)}
 input[type=time],input[type=date]{min-width:0}
@@ -98,8 +98,10 @@ input[type=time],input[type=date]{min-width:0}
 .row>input{flex:1;min-width:0}
 .pre,.unit{flex:0 0 auto;color:var(--sub);font-weight:700;font-size:16px}
 .tilde{flex:0 0 auto;color:var(--sub)}
-.mv{display:grid;gap:6px}
-.mv .tilde{text-align:center;line-height:1}
+.lock{flex:1;min-width:0;font-size:18px;font-weight:700;padding:11px 12px;border-radius:12px;background:var(--bg);color:var(--sub);border:1.5px dashed var(--line)}
+.hintbox{background:var(--pri-soft);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:15px}
+.hintbox b{display:block;font-size:13px;color:var(--pri)}
+.outs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{min-height:46px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-size:16px}
 .chip.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
@@ -191,13 +193,13 @@ input[type=time],input[type=date]{min-width:0}
 <datalist id="dl-places"></datalist>
 <datalist id="dl-color"><option>茶褐<option>暗褐<option>黄褐<option>褐灰<option>灰<option>暗灰<option>青灰<option>灰白<option>黒<option>暗緑灰</datalist>
 <datalist id="dl-geo"><option>表土<option>盛土<option>埋土<option>粘土<option>シルト<option>砂質シルト<option>粘土質シルト<option>砂<option>シルト質砂<option>細砂<option>中砂<option>粗砂<option>礫混り砂<option>砂礫<option>玉石混り砂礫<option>真砂土<option>強風化花崗岩<option>風化花崗岩<option>花崗岩<option>軟岩<option>硬岩</datalist>
-<datalist id="dl-dia"><option>66<option>86<option>116<option>135</datalist>
+<datalist id="dl-dia"><option>66<option>76<option>86<option>116<option>135</datalist>
 <datalist id="dl-bit"><option>シングルコアチューブ／メタルクラウン<option>ダブルコアチューブ／メタルクラウン<option>ダブルコアチューブ／ダイヤモンドビット<option>トリプルコアチューブ／ダイヤモンドビット<option>ノンコアビット</datalist>
 <datalist id="dl-water"><option>清水<option>泥水<option>ベントナイト泥水<option>ポリマー泥水<option>気泡</datalist>
 
 <script>
 'use strict';
-const APP_VERSION = '0.2.1';
+const APP_VERSION = '0.3.0';
 
 /* ---------- 基本ユーティリティ ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -220,6 +222,7 @@ const byName = (a, b) => (a.name || '').localeCompare(b.name || '', 'ja', { nume
 /* ---------- 選択肢（日報様式に合わせる） ---------- */
 const OPT = {
   weather: ['晴', '曇', '雨', '雪'],
+  status: ['通常', '雨天中止', '待機'],
   ashiba: [
     { g: '平坦', items: ['平坦 30cm以下', '平坦 30cm以上'] },
     { g: '湿地', items: ['湿地'] },
@@ -231,6 +234,7 @@ const OPT = {
     { g: 'トラック', items: ['トラック 2t積2.9t吊', 'トラック 3t積2.9t吊', 'トラック 4t積2.9t吊'] },
     { g: '特装車運搬', items: ['特装車運搬 100m以下', '特装車運搬 100m〜300m', '特装車運搬 300m以上'] },
     { g: 'モノレール運搬', items: ['モノレール運搬 50m以下', 'モノレール運搬 50m〜100m', 'モノレール運搬 100m〜200m', 'モノレール運搬 200m〜300m', 'モノレール運搬 300m以上'] },
+    { g: '人肩', items: ['人肩 50m以下', '人肩 50m〜100m'] },
     { g: 'その他', items: ['その他'] },
   ],
   yosui: ['動力噴霧機', '水道', '水運搬', '水中ポンプ', 'その他'],
@@ -240,26 +244,26 @@ const OPT = {
   holeState: ['崩壊', '湧水', '逸水', '孔壁不安定', 'ロッド抑留'],
   testGroups: [
     { g: '原位置試験', items: ['孔内水平載荷試験', '現場透水試験', 'その他の試験'] },
-    { g: 'サンプリング', items: ['シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング'] },
-    { g: '物理探査・検層', items: ['常時微動測定', 'PS検層(ダウンホール方式)', 'PS検層(孔内起振受振方式)', '密度検層', 'キャリパー検層'] },
+    { g: 'サンプリング', items: ['シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング', 'スリーブ内蔵（コアパック）'] },
+    { g: '物理探査・検層', items: ['常時微動測定', 'PS検層(ダウンホール方式)', 'PS検層(孔内起振受振方式)', '密度検層', '電気検層', 'キャリパー検層'] },
   ],
   tests: ['孔内水平載荷試験', '現場透水試験', 'シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング'],
-  geo: ['常時微動測定', 'PS検層(ダウンホール方式)', 'PS検層(孔内起振受振方式)', '密度検層', 'キャリパー検層'],
+  geo: ['常時微動測定', 'PS検層(ダウンホール方式)', 'PS検層(孔内起振受振方式)', '密度検層', '電気検層', 'キャリパー検層'],
 };
-const TWS_KINDS = ['シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング'];
+const TWS_KINDS = ['シンウォールサンプリング', 'デニソンサンプリング', 'トリプルサンプリング', 'スリーブ内蔵（コアパック）'];
 const SHORT = {
   '孔内水平載荷試験': '孔内水平載荷', '現場透水試験': '透水試験', 'その他の試験': 'その他試験',
   'シンウォールサンプリング': 'シンウォール', 'デニソンサンプリング': 'デニソン', 'トリプルサンプリング': 'トリプル',
-  '常時微動測定': '常時微動', 'PS検層(ダウンホール方式)': 'PS検層(DH)', 'PS検層(孔内起振受振方式)': 'PS検層(孔内)', '密度検層': '密度検層', 'キャリパー検層': 'キャリパー',
+  '常時微動測定': '常時微動', 'PS検層(ダウンホール方式)': 'PS検層(DH)', 'PS検層(孔内起振受振方式)': 'PS検層(孔内)', '密度検層': '密度検層', '電気検層': '電気検層', 'キャリパー検層': 'キャリパー', 'スリーブ内蔵（コアパック）': 'コアパック',
 };
 const MAX_WORKERS = 5, MAX_IV = 6;
 
 /* ---------- データ ---------- */
 let S = { v: 2, sites: [], holes: [], reports: [], names: [], places: [] };
-const blankWorker = role => ({ role: role || '', name: '', from: '', to: '', stay: false, mvFrom: '', mvTo: '' });
+const blankWorker = role => ({ role: role || '', name: '', from: '', to: '', stay: false, mv: '' });
 const blankCond = () => ({ ashiba: '', hannyu: [], tokusoM: '', monoM: '', hannyuEtc: '', yosui: [], yosuiEtc: '', drill: '', engine: '', pump: '', hammer: '', kussaku: '', dia: '', angle: '', slope: '' });
 const blankReport = () => ({
-  id: uid(), holeId: '', date: '', no: '1', writer: '', weather: [],
+  id: uid(), holeId: '', date: '', no: '1', writer: '', weather: [], status: '通常',
   depth: { prev: '', end: '' },
   water: { before: '', after: '', during: '' },
   cond: blankCond(),
@@ -279,6 +283,8 @@ function migrate(r) {
   if (/^湿地 /.test(r.cond.ashiba)) r.cond.ashiba = '湿地';
   if (r.cond.ashiba === '平坦') r.cond.ashiba = '平坦 30cm以下';
   r.workers = (r.workers || []).map(w => Object.assign(blankWorker(''), w));
+  r.workers.forEach(w => { if (!w.mv && (w.mvFrom || w.mvTo)) w.mv = [w.mvFrom, w.mvTo].filter(Boolean).join('〜'); delete w.mvFrom; delete w.mvTo; });
+  r.soils.forEach(x => { if (x.cont === undefined) x.cont = false; });
   if (Array.isArray(r.tests) && r.tests.some(t => typeof t === 'string')) r.tests = r.tests.filter(t => typeof t === 'string').map(k => ({ kind: k, from: '', to: '', memo: '' }));
   if (Array.isArray(r.samples)) { r.samples.forEach(s => r.tests.push({ kind: s.kind === 'その他' ? 'その他の試験' : s.kind, from: s.from || '', to: s.to || '', memo: s.memo || '' })); delete r.samples; }
   r.drills.forEach(d => { if (!Array.isArray(d.hole)) d.hole = []; });
@@ -295,7 +301,7 @@ const isRock = r => { const h = hole(r.holeId); return !!h && h.mode === 'rock';
 
 function touch(r) {
   const now = Date.now();
-  if (r) { r.updatedAt = now; const h = hole(r.holeId); if (h) { h.used = now; const s = site(h.siteId); if (s) s.used = now; } }
+  if (r) { r.updatedAt = now; const h = hole(r.holeId); if (h) { h.used = now; const s = site(h.siteId); if (s) s.used = now; } rechain(r.holeId); }
   scheduleSave();
 }
 function remember(list, n, dl) {
@@ -404,14 +410,7 @@ function warnings(r) {
     else if (hh(t.from) < 5 || hh(t.to) > 21) w('times', `${n}が帳票の時間帯（5時〜21時）からはみ出しています`);
     if (!t.kind) w('times', `${n}の工種が選ばれていません`);
   });
-  let prevTo = null;
-  r.soils.forEach((s, i) => {
-    const a = num(s.from), b = num(s.to), n = `${i + 1}層目`;
-    if (b == null) w('soils', `${n}の下端深度が未入力です`);
-    if (a != null && b != null && b <= a) w('soils', `${n}の下端が上端より浅くなっています`);
-    if (i > 0 && prevTo != null && a != null && Math.abs(a - prevTo) > 0.001) w('soils', `${n}の上端が前の層の下端（${f2(prevTo)}m）とつながっていません`);
-    prevTo = b;
-  });
+  soilErrors(r).forEach(m => W.push({ sec: 'soils', msg: m, hard: true }));
   let prevS = null;
   r.nvals.forEach((t, i) => {
     const n = `${i + 1}回目`, c = nCalc(t), s = num(t.start);
@@ -505,6 +504,7 @@ function render() {
   if (kind === 'h' && hole(id)) return renderDays(hole(id));
   if (kind === 'r' && report(id)) { cur = report(id); if (sec && secsFor(cur).some(s => s.id === sec)) { curSec = sec; return renderSection(cur, sec); } return renderMenu(cur); }
   if (kind === 'v' && report(id)) return renderView(report(id));
+  if (kind === 'c' && hole(id)) return renderColumn(hole(id));
   if (kind === 'w' && site(id) && /^\d{4}-\d{2}-\d{2}$/.test(sec || '')) return renderWeek(site(id), sec);
   return renderSites();
 }
@@ -549,8 +549,8 @@ function renderHoles(s) {
     }).join('') || '<li class="empty">この現場にはまだ孔番号がありません。</li>'}</ul>
     <div style="height:12px"></div>
     <button class="btn add" data-act="addHole" data-id="${s.id}">＋ 孔番号を追加</button>
-    <h2 class="sec">週報</h2>
-    <button class="btn ghost" data-act="week" data-id="${s.id}">この現場の週報を作る</button>`;
+    <h2 class="sec">この現場の出力</h2>
+    <div class="outs"><button class="btn ghost" data-act="week" data-id="${s.id}">週報を作る</button><button class="btn ghost" data-act="bundleSite" data-id="${s.id}">日報をまとめてPDF</button></div>`;
 }
 
 function renderDays(h) {
@@ -563,9 +563,11 @@ function renderDays(h) {
       const wn = warnings(r).length;
       return `<li class="day"><div class="top"><b>${fmtDate(r.date, true)}</b><small>No.${esc(r.no)}</small></div>
         <div class="meta">GL-${f2(num(r.depth.prev) ?? 0)} → ${r.depth.end ? 'GL-' + f2(num(r.depth.end)) : '未入力'}m
-          ${r.pdfAt ? `<span class="tag ok">PDF作成 ${fmtTime(r.pdfAt)}</span>` : ''}${wn ? `<span class="tag w">⚠ ${wn}</span>` : ''}</div>
+          ${r.status && r.status !== '通常' ? `<span class="tag rk">${esc(r.status)}</span>` : ''}${r.pdfAt ? `<span class="tag ok">PDF作成 ${fmtTime(r.pdfAt)}</span>` : ''}${wn ? `<span class="tag w">⚠ ${wn}</span>` : ''}</div>
         <div class="acts"><button class="btn ghost" data-go="#/v/${r.id}">閲覧</button><button class="btn pri" data-go="#/r/${r.id}">編集</button></div></li>`;
     }).join('') || '<li class="empty">まだ日報がありません。<br>上の「作業日を追加」から始めてください。</li>'}</ul>
+    <h2 class="sec">この孔の出力</h2>
+    <div class="outs"><button class="btn ghost" data-act="colView" data-id="${h.id}">簡易柱状図・XML</button><button class="btn ghost" data-act="bundleHole" data-id="${h.id}">日報をまとめてPDF</button></div>
     <div style="height:14px"></div>
     <div class="card"><div class="card-h"><b>この孔の日報の種類</b></div>
       <div class="chips"><button class="chip${h.mode !== 'rock' ? ' on' : ''}" data-act="mode" data-id="${h.id}" data-v="soil">土砂用</button><button class="chip${h.mode === 'rock' ? ' on' : ''}" data-act="mode" data-id="${h.id}" data-v="rock">岩盤用</button></div>
@@ -602,16 +604,23 @@ function renderSection(r, sec) {
 }
 
 /* 各入力画面 */
+const lockGL = v => `<div class="row"><span class="pre">GL-</span><span class="lock">${f2(num(v)) || '—'}</span><span class="unit">m</span></div>`;
+function routeSelect(r, i, v) {
+  const s = site(hole(r.holeId).siteId), rs = s.routes || [], opts = ['', ...rs];
+  if (v && !rs.includes(v)) opts.push(v);
+  return `<select data-k="workers.${i}.mv" aria-label="移動の区間">${opts.map(o => `<option value="${esc(o)}"${o === v ? ' selected' : ''}>${o ? esc(o) : '移動なし'}</option>`).join('')}<option value="__new">＋ 新しい区間を追加…</option></select>`;
+}
 const SEC = {
   basic: r => `<div class="card">
       ${H.fld('作業日', `<input type="date" data-k="date" value="${esc(r.date)}">`)}
       ${H.fld('日報No.', H.int('no', r.no, '1'))}
       ${H.fld('記入者', H.txt('writer', r.writer, '氏名', 'dl-names'))}
       ${H.fld('天候（複数選べます）', H.chips('weather', OPT.weather, r.weather, true))}
+      ${H.fld('作業区分', H.chips('status', OPT.status, r.status || '通常'), '雨天中止や立会い待ちなどで作業しなかった日は、ここで選んでください')}
     </div>
     <div class="card"><div class="card-h"><b>掘進長</b></div>
-      ${H.fld('前日の到達深度', H.gl('depth.prev', r.depth.prev), '前の作業日の到達深度を自動で引き継いでいます')}
-      ${H.fld('本日の到達深度（累計）', H.gl('depth.end', r.depth.end), '土質を入れると、一番深い下端深度が自動で入ります（手で直すこともできます）')}
+      ${H.fld('前日の到達深度', prevReport(r) ? lockGL(r.depth.prev) : H.gl('depth.prev', r.depth.prev), prevReport(r) ? '前の作業日の到達深度で決まります' : 'この孔の最初の作業日です。掘り始めの深度を入れてください')}
+      ${H.fld('本日の到達深度（累計）', r.soils.length ? lockGL(r.depth.end) : H.gl('depth.end', r.depth.end), r.soils.length ? '土質の一番深い下端深度で決まります' : '土質を入れると、一番深い下端深度で自動的に決まります')}
       <div class="calc">本日の掘進長　<b data-live="today"></b> m</div>
     </div>`,
   cond: r => `<p class="lead">前の作業日の設定を引き継いでいます。変わった日だけ直してください。</p>
@@ -647,7 +656,7 @@ const SEC = {
       ${H.fld('氏名', H.txt(`workers.${i}.name`, x.name, '氏名（一度入れると次から候補に出ます）', 'dl-names'))}
       ${H.fld('作業時間', `<div class="row">${H.time(`workers.${i}.from`, x.from)}<span class="tilde">〜</span>${H.time(`workers.${i}.to`, x.to)}</div>`)}
       ${H.fld('宿泊・通勤', `<div class="chips"><button class="chip${x.stay ? ' on' : ''}" data-act="stay" data-i="${i}" data-v="1">宿泊</button><button class="chip${!x.stay ? ' on' : ''}" data-act="stay" data-i="${i}" data-v="0">通勤</button></div>`)}
-      ${H.fld('移動（出発 〜 到着）', `<div class="mv">${H.txt(`workers.${i}.mvFrom`, x.mvFrom, '例：香川県高松市', 'dl-places')}<span class="tilde">〜</span>${H.txt(`workers.${i}.mvTo`, x.mvTo, '例：岡山県岡山市', 'dl-places')}</div>`, '入れた内容は帳票の備考欄に記載されます')}
+      ${H.fld('移動（移動した日だけ選ぶ）', routeSelect(r, i, x.mv), '行きも帰りも同じ区間を選んでください。帳票の備考欄に記載されます')}
     </div>`).join('')}
     ${r.workers.length < MAX_WORKERS ? `<button class="btn add" data-act="addRow" data-list="workers">＋ 作業員を追加</button>` : '<p class="lead">帳票の枠は5名までです。</p>'}`,
   times: r => `<p class="lead">「何時から何時まで何をしたか」を入れると、帳票の作業時間の欄に自動で線を引きます。週報の午前・午後の作業内容にも使います。</p>
@@ -657,15 +666,23 @@ const SEC = {
       ${H.fld('作業内容', H.txt(`times.${i}.memo`, t.memo, '例：フロート足場組立、資機材搬入'))}
     </div>`).join('')}
     <button class="btn add" data-act="addRow" data-list="times">＋ 作業時間を追加</button>`,
-  soils: r => `${r.soils.map((s, i) => `<div class="card"><div class="card-h"><b>${i + 1}層目</b><button class="x" data-act="delRow" data-list="soils" data-i="${i}">削除</button></div>
-      ${H.fld('深度', H.range(`soils.${i}.from`, s.from, `soils.${i}.to`, s.to))}
+  soils: r => {
+    const pv = prevSoil(r), top = f2(num(r.depth.prev) ?? 0), last = r.soils[r.soils.length - 1];
+    const hint = pv ? `<div class="hintbox"><b>前日の最後の地層</b>GL-${f2(num(pv.from))}〜${f2(num(pv.to))}m　${esc(pv.kubun)}${pv.color ? '（' + esc(pv.color) + '）' : ''}</div>` : '';
+    const cards = r.soils.map((s, i) => `<div class="card"><div class="card-h"><b>${i + 1}層目${i === 0 && s.cont ? '<span class="tag rk">前日の層の続き</span>' : ''}</b>${i === r.soils.length - 1 ? `<button class="x" data-act="delRow" data-list="soils" data-i="${i}">削除</button>` : ''}</div>
+      ${i === 0 && pv ? H.fld('前日の層との関係', `<div class="chips"><button class="chip${s.cont ? ' on' : ''}" data-act="cont" data-v="1">前日の層の続き</button><button class="chip${!s.cont ? ' on' : ''}" data-act="cont" data-v="0">新しい層</button></div>`) : ''}
+      ${H.fld('深度', `<div class="row"><span class="pre">GL-</span><span class="lock" data-live="from" data-i="${i}">${f2(num(s.from))}</span><span class="tilde">〜</span>${H.dec(`soils.${i}.to`, s.to, '下端')}<span class="unit">m</span></div>`, i === 0 ? '上端は前日の到達深度で決まります' : '上端は前の層の下端で決まります')}
       <div class="calc" style="margin:-4px 0 14px">層厚　<b data-live="thick" data-i="${i}"></b> m</div>
       ${H.fld('色調', H.txt(`soils.${i}.color`, s.color, '例：茶褐', 'dl-color'))}
       ${H.fld('地質区分', H.txt(`soils.${i}.kubun`, s.kubun, '例：砂礫', 'dl-geo'))}
       ${H.fld('観察記録・特記事項', H.area(`soils.${i}.note`, s.note, '粒径、含水、締まり具合、気付いたことなど'))}
-    </div>`).join('')}
-    <button class="btn add" data-act="addRow" data-list="soils">＋ 層を追加</button>
-    <em class="hint" style="margin-top:8px">上端は前の層の下端（1層目は前日の到達深度）が自動で入ります。一番深い下端は本日の到達深度に反映されます。</em>`,
+    </div>`).join('');
+    const add = !r.soils.length
+      ? (pv ? `<div class="outs"><button class="btn pri" data-act="soilStart" data-v="1">前日の層の続きとして入力</button><button class="btn ghost" data-act="soilStart" data-v="0">新しい層として入力</button></div>`
+            : `<button class="btn add" data-act="addRow" data-list="soils">＋ 層を追加（GL-${top}mから）</button>`)
+      : `<button class="btn add" data-act="addRow" data-list="soils">＋ 次の層を追加${last && num(last.to) != null ? `（GL-${f2(num(last.to))}mから）` : ''}</button>`;
+    return `${hint}${cards}${add}<em class="hint" style="margin-top:8px">土質は上から順につながる形でしか入力できません。上端は自動で決まるので、下端だけ入れてください。消すときは一番下の層から順に消します。一番深い下端が本日の到達深度になります。</em>`;
+  },
   nvals: r => `${r.nvals.map((t, i) => `<div class="card"><div class="card-h"><b>${i + 1}回目</b><button class="x" data-act="delRow" data-list="nvals" data-i="${i}">削除</button></div>
       ${H.fld('試験開始深度', H.gl(`nvals.${i}.start`, t.start))}
       <div class="iv"><span class="h">区間</span><span class="h">打撃回数（回）</span><span class="h">貫入量（cm）</span>
@@ -715,6 +732,7 @@ const SEC = {
 /* 入力中に自動で更新する表示 */
 const LIVE = {
   today: r => { const v = todayLen(r); return v == null ? '—' : f2(v); },
+  from: (r, d) => { const s = r.soils[d.i]; return s ? f2(num(s.from)) : ''; },
   thick: (r, d) => { const s = r.soils[d.i]; if (!s) return '—'; const a = num(s.from), b = num(s.to); return a != null && b != null ? f2(b - a) : '—'; },
   ntot: (r, d) => {
     const t = r.nvals[d.i]; if (!t) return '';
@@ -735,6 +753,7 @@ function onInput(e) {
   if (!k || !cur) return;
   let v = el.value;
   if (e.type === 'change' && el.dataset.num) { const z = z2h(v); if (z !== v) { v = z; el.value = z; } }
+  if (/^workers\.\d+\.mv$/.test(k) && v === '__new') { el.value = getPath(cur, k) || ''; addRoute(k); return; }
   const op = k.match(/^workers\.0\.(from|to)$/);
   const old = op ? cur.workers[0][op[1]] : null;
   setPath(cur, k, v);
@@ -745,7 +764,6 @@ function onInput(e) {
   if (/^soils\.\d+\.to$/.test(k)) syncEnd(cur);
   if (e.type === 'change') {
     if (/^workers\.\d+\.name$/.test(k) || k === 'writer') remember('names', v);
-    if (/^workers\.\d+\.mv(From|To)$/.test(k)) remember('places', v);
   }
   touch(cur); live();
 }
@@ -800,13 +818,29 @@ const ACT = {
   async delReport(b) {
     const r = report(b.dataset.id);
     const ok = await ask('この日報を削除しますか？', `${fmtDate(r.date, true)} の日報が消えます。元に戻せません。`, [{ t: '削除する', v: 'y', cls: 'danger' }, { t: 'やめる', v: '' }]);
-    if (ok) { const hid = r.holeId; S.reports = S.reports.filter(x => x !== r); touch(); go(`#/h/${hid}`); }
+    if (ok) { const hid = r.holeId; S.reports = S.reports.filter(x => x !== r); rechain(hid); touch(); go(`#/h/${hid}`); }
   },
   async week(b) {
     const d = await promptText('週報を作る', '週の中の日付を選んでください（日曜〜土曜の週になります）', todayStr(), 'date'); if (!d) return;
     go(`#/w/${b.dataset.id}/${sundayOf(d)}`);
   },
   weekPdf(b) { makeWeekPDF(site(b.dataset.id), b.dataset.sun); },
+  soilStart(b) {
+    const pv = prevSoil(cur), cont = b.dataset.v === '1' && !!pv;
+    cur.soils.push({ from: f2(num(cur.depth.prev) ?? 0), to: '', color: cont ? pv.color : '', kubun: cont ? pv.kubun : '', note: '', cont });
+    touch(cur); rerender();
+  },
+  cont(b) {
+    const s0 = cur.soils[0], pv = prevSoil(cur); if (!s0) return;
+    s0.cont = b.dataset.v === '1' && !!pv;
+    if (s0.cont && pv) { if (!s0.kubun) s0.kubun = pv.kubun; if (!s0.color) s0.color = pv.color; }
+    touch(cur); rerender();
+  },
+  colView(b) { go(`#/c/${b.dataset.id}`); },
+  colPdf(b) { makeColumnPDF(hole(b.dataset.id)); },
+  colXml(b) { makeXML(hole(b.dataset.id)); },
+  bundleHole(b) { const h = hole(b.dataset.id); bundlePDF(reportsOf(h.id).slice().reverse(), `試錐日報まとめ_${safeName(site(h.siteId).name)}_${safeName(h.name)}.pdf`); },
+  bundleSite(b) { const s = site(b.dataset.id); bundlePDF(S.holes.filter(h => h.siteId === s.id).sort(byName).flatMap(h => reportsOf(h.id).slice().reverse()), `試錐日報まとめ_${safeName(s.name)}.pdf`); },
   set(b) { const k = b.dataset.k, v = b.dataset.v; setPath(cur, k, getPath(cur, k) === v ? '' : v); touch(cur); rerender(); },
   tog(b) {
     if (!b.dataset.k) return;
@@ -819,7 +853,7 @@ const ACT = {
     const r = cur, L = b.dataset.list, prevEnd = num(r.depth.prev) ?? 0;
     if (L === 'workers') { const f = r.workers[0]; r.workers.push(Object.assign(blankWorker('調査助手'), f ? { from: f.from, to: f.to } : {})); }
     if (L === 'times') { const last = r.times[r.times.length - 1]; r.times.push({ from: last ? last.to : '08:00', to: '', kind: '', memo: '' }); }
-    if (L === 'soils') { const d = lastDepth(r.soils, 'to'); r.soils.push({ from: f2(d ?? prevEnd), to: '', color: '', kubun: '', note: '' }); }
+    if (L === 'soils') { const last = r.soils[r.soils.length - 1]; if (last && !(num(last.to) > num(last.from))) { toast('前の層の下端深度を正しく入れてから追加してください'); return; } r.soils.push({ from: f2(last ? num(last.to) : prevEnd), to: '', color: '', kubun: '', note: '', cont: false }); }
     if (L === 'nvals') { const d = lastDepth(r.nvals, 'start'); r.nvals.push({ start: d != null ? f2(d + 1) : '', iv: [{ b: '', c: '10' }, { b: '', c: '10' }, { b: '', c: '10' }] }); }
     if (L === 'drills') { const d = lastDepth(r.drills, 'to'); r.drills.push({ from: f2(d ?? prevEnd), to: '', hole: [], text: '', problem: false }); }
     if (L === 'tests') r.tests.push({ kind: '', from: '', to: '', memo: '' });
@@ -856,6 +890,12 @@ document.addEventListener('click', async e => {
   const f = ACT[b.dataset.act]; if (f) f(b);
 });
 
+async function addRoute(k) {
+  const v = await promptText('移動の区間を追加', '区間（例：香川県高松市〜岡山県岡山市）');
+  if (!v || !cur) { rerender(); return; }
+  const s = site(hole(cur.holeId).siteId); s.routes = [...new Set([...(s.routes || []), v])];
+  setPath(cur, k, v); touch(cur); rerender();
+}
 function newReport(h, date) {
   const all = reportsOf(h.id);
   const prev = all.find(r => (r.date || '') < date) || all[0];
@@ -864,7 +904,7 @@ function newReport(h, date) {
   r.no = String(Math.max(0, ...all.map(x => parseInt(x.no) || 0)) + 1);
   if (prev) {
     r.writer = prev.writer; r.cond = clone(prev.cond); r.casing = clone(prev.casing);
-    r.workers = prev.workers.map(x => ({ role: x.role, name: x.name, from: x.from, to: x.to, stay: x.stay, mvFrom: x.mvFrom || '', mvTo: x.mvTo || '' }));
+    r.workers = prev.workers.map(x => ({ role: x.role, name: x.name, from: x.from, to: x.to, stay: x.stay, mv: '' }));
     r.depth.prev = prev.depth.end || prev.depth.prev || '';
   }
   return r;
@@ -941,6 +981,7 @@ async function mergeData(d) {
   for (const s of d.sites || []) {
     let l = S.sites.find(x => x.name === s.name);
     if (!l) { l = { id: uid(), name: s.name, used: s.used || Date.now() }; S.sites.push(l); }
+    l.routes = [...new Set([...(l.routes || []), ...(s.routes || [])])];
     siteMap[s.id] = l.id;
   }
   for (const h of d.holes || []) {
@@ -962,6 +1003,7 @@ async function mergeData(d) {
   }
   (d.names || []).slice().reverse().forEach(n => remember('names', n));
   (d.places || []).slice().reverse().forEach(n => remember('places', n));
+  S.holes.forEach(h => rechain(h.id));
   touch(); writeNow(); render();
   await ask('読み込みが終わりました', `追加 ${add}日分 ／ 上書き ${over}日分 ／ そのまま ${keep + same}日分`, [{ t: 'OK', v: '' }]);
 }
@@ -1093,8 +1135,8 @@ function paperPage(r, s, h, D, p, n) {
     }).join('');
     const grid = Array.from({ length: H1 - H0 }, (_, j) => `<div class="gl" style="left:${(j + 1) * HW}px"></div>`).join('');
     const ws = Array.from({ length: MAX_WORKERS }, (_, j) => r.workers[j] || null);
-    const mv = r.workers.filter(w => w.name && (w.mvFrom || w.mvTo)).map(w => `移動：${w.name}　${w.mvFrom}〜${w.mvTo}`);
-    const noteHtml = esc([r.note, ...mv].filter(Boolean).join('\n')).replace(/\n/g, '<br>');
+    const mv = r.workers.filter(w => w.name && w.mv).map(w => `移動：${w.name}　${w.mv}`);
+    const noteHtml = esc([r.status && r.status !== '通常' ? `【${r.status}】` : '', r.note, ...mv].filter(Boolean).join('\n')).replace(/\n/g, '<br>');
     /* 計測・試験・サンプリング／物理探査は、入力したものだけを種類と深度で書く */
     const done = kinds => kinds.filter(k => r.tests.some(t => t.kind === k)).map(k => {
       const L = r.tests.filter(t => t.kind === k), deps = L.map(t => (t.from || t.to) ? `${f2(num(t.from))}〜${f2(num(t.to))}` : '').filter(Boolean).join('、');
@@ -1151,6 +1193,7 @@ function dayContent(reps) {
   const am = [], pm = [];
   reps.forEach(r => {
     const A = [], P = [], hn = hole(r.holeId).name;
+    if (r.status && r.status !== '通常') A.push(r.status);
     const times = r.times.filter(t => t.from).sort((a, b) => a.from.localeCompare(b.from));
     times.forEach(t => { const tx = t.memo || t.kind; if (tx) (hh(t.from) < 12 ? A : P).push(tx); });
     const p = num(r.depth.prev) ?? 0, e = num(r.depth.end);
@@ -1176,12 +1219,11 @@ function dayHours(reps) {
 function strata(sid, end) {
   const out = [];
   S.holes.filter(h => h.siteId === sid).sort(byName).forEach(h => {
-    const soils = S.reports.filter(r => r.holeId === h.id && r.date && r.date <= end).flatMap(r => r.soils).filter(s => num(s.to) != null)
-      .sort((a, b) => (num(a.from) ?? 0) - (num(b.from) ?? 0));
+    const soils = holeLayers(h.id, end).filter(s => s.to != null);
     if (!soils.length) return;
     out.push({ t: 'h', text: h.name, n: 1 });
-    soils.forEach(s => { const tx = s.kubun || s.color || ''; out.push({ t: 's', d: f2(num(s.from) ?? 0), text: tx, n: Math.max(1, Math.ceil(tx.length / 6)) }); });
-    out.push({ t: 'e', d: f2(Math.max(...soils.map(s => num(s.to)))), n: 1 });
+    soils.forEach(s => { const tx = s.kubun || s.color || ''; out.push({ t: 's', d: f2(s.from ?? 0), text: tx, n: Math.max(1, Math.ceil(tx.length / 6)) }); });
+    out.push({ t: 'e', d: f2(Math.max(...soils.map(s => s.to))), n: 1 });
   });
   const caps = [48, 36, 36], cols = [[], [], []]; let ci = 0, used = 0;
   out.forEach(x => { while (ci < 3 && used + x.n > caps[ci]) { ci++; used = 0; } if (ci < 3) { cols[ci].push(x); used += x.n; } });
@@ -1241,6 +1283,7 @@ async function buildPDF(pages) {
   const host = $('#paper-host');
   const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
   for (let i = 0; i < pages.length; i++) {
+    $('#busy').textContent = pages.length > 1 ? `PDFを作成しています…（${i + 1}／${pages.length}ページ）` : 'PDFを作成しています…';
     host.innerHTML = pages[i];
     const cv = await window.html2canvas(host.firstElementChild, { scale: 2.5, backgroundColor: '#ffffff', logging: false, width: 1123, height: 794, windowWidth: 1123 });
     if (i) pdf.addPage('a4', 'landscape');
@@ -1266,26 +1309,388 @@ async function sendPDF(pages, name) {
   }
 }
 async function makePDF(r) {
-  if (inFrame()) return trialNotice();
-  const W = warnings(r);
+  if (!(await guardSoils(soilErrors(r), `#/r/${r.id}/soils`))) return;
+  const W = warnings(r).filter(x => !x.hard);
   if (W.length) {
     const a = await ask(`確認が必要な項目が ${W.length}件 あります`, `<ul style="margin:0;padding-left:1.2em">${W.slice(0, 8).map(x => `<li>${esc(x.msg)}</li>`).join('')}</ul>`,
       [{ t: 'このままPDFを作る', v: 'go', cls: 'acc' }, { t: '戻って直す', v: '' }]);
     if (!a) return;
   }
+  if (inFrame()) return trialNotice();
   const h = hole(r.holeId), s = site(h.siteId);
   const res = await sendPDF(paperPages(r), `試錐日報_${safeName(s.name)}_${safeName(h.name)}_${(r.date || '').replace(/-/g, '')}.pdf`);
   if (res === 'shared' || res === 'saved') { r.pdfAt = Date.now(); touch(); }
 }
 async function makeWeekPDF(s, sun) {
-  if (inFrame()) return trialNotice();
   const days = weekDays(sun);
+  const E = siteReports(s.id).filter(r => r.date && r.date <= days[6]).flatMap(r => soilErrors(r).map(m => `${hole(r.holeId).name} ${fmtDate(r.date)}：${m}`));
+  if (!(await guardSoils(E))) return;
+  if (inFrame()) return trialNotice();
   await sendPDF([paperWeek(s, sun)], `週報_${safeName(s.name)}_${days[0].replace(/-/g, '')}-${days[6].replace(/-/g, '')}.pdf`);
+}
+
+/* ---------- 孔ごとの地層（日をまたいだ層をつなげる） ---------- */
+const asc = (a, b) => (a.date || '').localeCompare(b.date || '') || a.createdAt - b.createdAt;
+function holeLayers(hid, end) {
+  const out = [];
+  S.reports.filter(r => r.holeId === hid && (!end || (r.date && r.date <= end))).sort(asc).forEach(r => r.soils.forEach((s, i) => {
+    const a = num(s.from), b = num(s.to);
+    if (i === 0 && s.cont && out.length) { const L = out[out.length - 1]; L.to = b; if (s.note) L.notes.push(s.note); return; }
+    out.push({ from: a, to: b, kubun: s.kubun || '', color: s.color || '', notes: s.note ? [s.note] : [] });
+  }));
+  return out;
+}
+/* 土質のつながりのチェック（これが通らないと出力できない） */
+function soilErrors(r) {
+  const E = [];
+  r.soils.forEach((s, i) => {
+    const a = num(s.from), b = num(s.to), n = `${i + 1}層目`;
+    if (b == null) E.push(`${n}の下端深度が未入力です`);
+    else if (a == null || b <= a + 0.0001) E.push(`${n}の下端が上端（GL-${f2(a)}m）以下になっています`);
+    if (!(s.kubun || '').trim()) E.push(`${n}の地質区分が未入力です`);
+  });
+  const p = num(r.depth.prev) ?? 0, e = num(r.depth.end);
+  if (!r.soils.length && e != null && e > p + 0.0001) E.push('掘進しているのに土質が入っていません');
+  return E;
+}
+function holeErrors(hid, needTop) {
+  const E = [];
+  S.reports.filter(r => r.holeId === hid).sort(asc).forEach(r => soilErrors(r).forEach(m => E.push(`${fmtDate(r.date)}：${m}`)));
+  const L = holeLayers(hid);
+  if (needTop) {
+    if (!L.length) E.push('土質が1層も入っていません');
+    else if ((L[0].from ?? 0) > 0.0001) E.push(`土質がGL-0.00mから始まっていません（GL-${f2(L[0].from)}mから）`);
+  }
+  return E;
+}
+async function guardSoils(errs, openHash) {
+  if (!errs.length) return true;
+  const a = await ask('土質のつながりを直してください', `<ul style="margin:0 0 8px;padding-left:1.2em">${errs.slice(0, 8).map(x => `<li>${esc(x)}</li>`).join('')}${errs.length > 8 ? '<li>ほか…</li>' : ''}</ul>土質が上から正しくつながっていないと、出力できません。`,
+    openHash ? [{ t: '土質の入力を開く', v: 'go', cls: 'pri' }, { t: '閉じる', v: '' }] : [{ t: 'OK', v: '' }]);
+  if (a === 'go' && openHash) go(openHash);
+  return false;
+}
+/* 日をまたいだ土質を上から順につなげ直す（上端は自動で決まる） */
+function rechain(hid) {
+  let prevEnd = null, hasPrevSoil = false;
+  S.reports.filter(r => r.holeId === hid).sort(asc).forEach(r => {
+    if (prevEnd != null) r.depth.prev = f2(prevEnd);
+    const top = num(r.depth.prev) ?? 0;
+    r.soils.forEach((s, i) => { const up = i === 0 ? top : num(r.soils[i - 1].to); if (up != null) s.from = f2(up); });
+    if (r.soils.length && !hasPrevSoil) r.soils[0].cont = false;
+    syncEnd(r);
+    const e = num(r.depth.end);
+    prevEnd = e != null && e > top ? e : top;
+    if (r.soils.length) hasPrevSoil = true;
+  });
+}
+function prevSoil(r) {
+  const p = S.reports.filter(x => x.holeId === r.holeId && x !== r && (x.date || '') < (r.date || '') && x.soils.length).sort(asc).pop();
+  return p ? p.soils[p.soils.length - 1] : null;
+}
+
+/* ---------- 簡易柱状図（A3縦・確認用） ---------- */
+const COL_W = 1191, COL_H = 1684, COL_MPP = 25;
+const FONT = '"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Noto Sans CJK JP","Yu Gothic",Meiryo,sans-serif';
+function colData(h) {
+  const reps = S.reports.filter(r => r.holeId === h.id).sort(asc);
+  const layers = holeLayers(h.id);
+  const spt = reps.flatMap(r => r.nvals.map(t => ({ t, c: nCalc(t), s: num(t.start) }))).filter(x => x.s != null && x.c.filled);
+  const tests = reps.flatMap(r => r.tests.filter(t => t.kind && (num(t.from) != null || num(t.to) != null)));
+  const water = reps.flatMap(r => [['前', r.water.before], ['後', r.water.after]].filter(x => num(x[1]) != null).map(([k, v]) => ({ date: r.date, k, v: num(v) })));
+  const prog = reps.filter(r => num(r.depth.end) != null && num(r.depth.end) > (num(r.depth.prev) ?? 0) + 0.0001).map(r => ({ date: r.date, d: num(r.depth.end) }));
+  const total = Math.max(0, ...layers.map(l => l.to || 0), ...reps.map(r => num(r.depth.end) || 0));
+  return { reps, layers, spt, tests, water, prog, total };
+}
+function patKinds(name) {
+  const n = name || '';
+  if (/盛土|埋土|埋め土/.test(n)) return ['fill'];
+  if (/表土|耕作土/.test(n)) return ['top'];
+  if (/岩|花崗|チャート|蛇紋/.test(n) && !/礫|玉石/.test(n)) return ['rock'];
+  const k = [];
+  if (/玉石/.test(n)) k.push('cobble');
+  if (/礫/.test(n)) k.push('gravel');
+  if (/砂/.test(n)) k.push('dot');
+  if (/粘土/.test(n)) k.push('clay');
+  if (/シルト/.test(n)) k.push('silt');
+  return k;
+}
+function makePat(ctx, kind) {
+  const s = { dot: 8, gravel: 18, cobble: 30, clay: 8, silt: 10, rock: 16, fill: 12, top: 14 }[kind];
+  const c = document.createElement('canvas'); c.width = c.height = s * 2;
+  const g = c.getContext('2d'); g.scale(2, 2); g.strokeStyle = g.fillStyle = '#222'; g.lineWidth = 0.9;
+  const P = () => g.beginPath();
+  if (kind === 'dot') { P(); g.arc(2, 2, 0.8, 0, 7); g.fill(); P(); g.arc(6, 6, 0.8, 0, 7); g.fill(); }
+  if (kind === 'gravel') { P(); g.arc(5.5, 5.5, 3.2, 0, 7); g.stroke(); P(); g.arc(13.5, 13.5, 2.4, 0, 7); g.stroke(); }
+  if (kind === 'cobble') { P(); g.ellipse(10, 10, 7.5, 5.5, 0, 0, 7); g.stroke(); P(); g.arc(23, 23, 3.2, 0, 7); g.stroke(); }
+  if (kind === 'clay') { P(); g.moveTo(0, 4.5); g.lineTo(8, 4.5); g.stroke(); }
+  if (kind === 'silt') { P(); g.moveTo(0, 5); g.lineTo(5, 5); g.stroke(); }
+  if (kind === 'rock') { P(); g.moveTo(0, 0.5); g.lineTo(16, 0.5); g.moveTo(0, 8.5); g.lineTo(16, 8.5); g.moveTo(4.5, 0.5); g.lineTo(4.5, 8.5); g.moveTo(12.5, 8.5); g.lineTo(12.5, 16); g.stroke(); }
+  if (kind === 'fill') { P(); g.moveTo(0, 0); g.lineTo(12, 12); g.moveTo(12, 0); g.lineTo(0, 12); g.stroke(); }
+  if (kind === 'top') { P(); g.moveTo(3, 10); g.lineTo(7, 5); g.lineTo(11, 10); g.stroke(); }
+  const p = ctx.createPattern(c, 'repeat');
+  if (p && p.setTransform && window.DOMMatrix) p.setTransform(new DOMMatrix().scale(0.5));
+  return p;
+}
+function wrapLines(ctx, text, maxW) {
+  const out = [];
+  String(text || '').split('\n').forEach(par => {
+    let line = '';
+    for (const ch of par) { if (ctx.measureText(line + ch).width > maxW && line) { out.push(line); line = ch; } else line += ch; }
+    out.push(line);
+  });
+  return out;
+}
+function drawText(ctx, text, x, y, maxW, lh, maxLines) {
+  const L = wrapLines(ctx, text, maxW).slice(0, maxLines);
+  L.forEach((l, i) => ctx.fillText(l, x, y + i * lh));
+  return L.length;
+}
+function columnPages(h) {
+  const D = colData(h), s = site(h.siteId);
+  const pages = Math.max(1, Math.ceil((D.total + 0.001) / COL_MPP));
+  const cols = [['標尺', 30], ['深度\n(m)', 50], ['柱状図', 60], ['土質名', 100], ['色調', 44], ['記　　事', 190], ['孔内水位\n(GL-m)', 62], ['試験\n深度(m)', 46], ['打撃回数／貫入量\n(回／cm)', 100], ['N値', 36], ['深度－N値図', 160], ['試料採取', 100], ['原位置試験', 100], ['削孔\n月日', 48]];
+  const X = []; let x = 32; cols.forEach(([, w]) => { X.push(x); x += w; }); X.push(x);
+  const TOP = 30, HEAD = 104, TH = 64, B0 = TOP + HEAD + TH, B1 = COL_H - 46, PXM = (B1 - B0) / COL_MPP;
+  const d1 = D.reps[0] ? D.reps[0].date : '', d2 = D.reps.length ? D.reps[D.reps.length - 1].date : '';
+  const out = [];
+  for (let p = 0; p < pages; p++) {
+    const cv = document.createElement('canvas'); cv.width = COL_W * 2; cv.height = COL_H * 2;
+    const ctx = cv.getContext('2d'); ctx.scale(2, 2);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, COL_W, COL_H);
+    ctx.fillStyle = '#000'; ctx.strokeStyle = '#000'; ctx.textBaseline = 'top';
+    const F = (sz, b) => { ctx.font = `${b ? 'bold ' : ''}${sz}px ${FONT}`; };
+    /* 見出し */
+    F(26, true); ctx.textAlign = 'center'; ctx.fillText('簡易柱状図（確認用）', COL_W / 2, TOP);
+    F(13); ctx.textAlign = 'left';
+    ctx.fillText(`調査件名：${s.name}`, X[0], TOP + 46);
+    ctx.fillText(`孔No.：${h.name}　　調査期間：${d1 ? fmtDate(d1, true) : ''}〜${d2 ? fmtDate(d2) : ''}　　総削孔長：${f2(D.total)}m　　作成：${fmtDate(todayStr(), true)}`, X[0], TOP + 68);
+    ctx.textAlign = 'right'; ctx.fillText(`${p + 1}／${pages}枚目`, X[X.length - 1], TOP + 68);
+    F(11); ctx.fillText('日報データから自動で作成した確認用の柱状図です', X[X.length - 1], TOP + 46);
+    /* 表の枠 */
+    const T0 = TOP + HEAD;
+    ctx.lineWidth = 1.2; ctx.strokeRect(X[0], T0, X[X.length - 1] - X[0], B1 - T0);
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(X[0], B0); ctx.lineTo(X[X.length - 1], B0); ctx.stroke();
+    X.slice(1, -1).forEach(xx => { ctx.beginPath(); ctx.moveTo(xx, T0); ctx.lineTo(xx, B1); ctx.stroke(); });
+    F(11, true); ctx.textAlign = 'center';
+    cols.forEach(([t], i) => { const ls = t.split('\n'); ls.forEach((l, j) => ctx.fillText(l, (X[i] + X[i + 1]) / 2, T0 + TH / 2 - ls.length * 7 + j * 14)); });
+    const gx = X[10] + 8, gw = (X[11] - X[10]) - 16;
+    F(9); [0, 10, 20, 30, 40, 50].forEach(v => ctx.fillText(String(v), gx + gw * v / 50, B0 - 13));
+    const dA = p * COL_MPP, dB = dA + COL_MPP, Y = d => B0 + (d - dA) * PXM;
+    ctx.save(); ctx.beginPath(); ctx.rect(X[0], B0, X[X.length - 1] - X[0], B1 - B0); ctx.clip();
+    /* N値図の目盛り */
+    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.5;
+    [10, 20, 30, 40].forEach(v => { ctx.beginPath(); ctx.moveTo(gx + gw * v / 50, B0); ctx.lineTo(gx + gw * v / 50, B1); ctx.stroke(); });
+    ctx.strokeStyle = '#000';
+    /* 標尺 */
+    F(10); ctx.textAlign = 'right';
+    for (let m = Math.ceil(dA * 2) / 2; m <= dB; m += 0.5) {
+      const y = Y(m), major = Math.abs(m - Math.round(m)) < 0.01;
+      ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(X[1] - (major ? 10 : 5), y); ctx.lineTo(X[1], y); ctx.stroke();
+      if (major && m > 0) ctx.fillText(String(Math.round(m)), X[1] - 12, y - 5);
+    }
+    /* 地層 */
+    D.layers.forEach(L => {
+      if (L.to == null || L.from == null || L.to <= dA || L.from >= dB) return;
+      const y0 = Y(L.from), y1 = Y(L.to), hgt = y1 - y0;
+      const kinds = patKinds(L.kubun);
+      if (!kinds.length) { ctx.fillStyle = '#f2f2f2'; ctx.fillRect(X[2], y0, X[3] - X[2], hgt); }
+      kinds.forEach(k => { ctx.fillStyle = makePat(ctx, k); ctx.fillRect(X[2], y0, X[3] - X[2], hgt); });
+      ctx.fillStyle = '#000'; ctx.lineWidth = 0.9;
+      ctx.beginPath(); ctx.moveTo(X[1], y1); ctx.lineTo(X[6], y1); ctx.stroke();
+      F(10); ctx.textAlign = 'right'; ctx.fillText(f2(L.to), X[2] - 3, y1 - 12);
+      ctx.textAlign = 'left';
+      const lines = Math.max(1, Math.floor((hgt - 4) / 13));
+      F(11); drawText(ctx, L.kubun, X[3] + 4, y0 + Math.max(2, hgt / 2 - 7 * Math.min(lines, wrapLines(ctx, L.kubun, X[4] - X[3] - 8).length)), X[4] - X[3] - 8, 13, lines);
+      F(10); drawText(ctx, L.color, X[4] + 3, y0 + Math.max(2, hgt / 2 - 6), X[5] - X[4] - 6, 12, lines);
+      F(9.5); drawText(ctx, L.notes.join('\n'), X[5] + 4, y0 + 3, X[6] - X[5] - 8, 12, Math.max(1, Math.floor((hgt - 4) / 12)));
+    });
+    /* 孔内水位 */
+    ctx.textAlign = 'left';
+    let wy = -1e9;
+    D.water.filter(w => w.v >= dA && w.v <= dB).sort((a, b) => a.v - b.v).forEach(w => {
+      const y = Y(w.v), cx = X[6] + 8, ly = Math.max(y - 9, wy + 21); wy = ly;
+      ctx.beginPath(); ctx.moveTo(cx - 5, y - 8); ctx.lineTo(cx + 5, y - 8); ctx.lineTo(cx, y); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx - 6, y + 2); ctx.lineTo(cx + 6, y + 2); ctx.stroke();
+      if (ly > y - 8) { ctx.lineWidth = 0.4; ctx.beginPath(); ctx.moveTo(cx + 5, y - 4); ctx.lineTo(cx + 13, ly + 4); ctx.stroke(); ctx.lineWidth = 0.8; }
+      const t = ymd(w.date); ctx.save(); ctx.beginPath(); ctx.rect(X[6], B0, X[7] - X[6] - 1, B1 - B0); ctx.clip(); F(8.5, true); ctx.fillText(f2(w.v), cx + 14, ly); F(7.5); ctx.fillText(`${t.m}/${t.d}${w.k}`, cx + 14, ly + 10); ctx.restore();
+    });
+    /* 標準貫入試験 */
+    const pts = [];
+    D.spt.forEach(({ t, c, s: st }) => {
+      const e = st + c.c / 100, y0 = Y(st), y1 = Y(e);
+      if (e < dA || st > dB) return;
+      ctx.lineWidth = 0.6; ctx.strokeStyle = '#666';
+      ctx.strokeRect(X[7] + 4, y0, X[8] - X[7] - 8, Math.max(2, y1 - y0)); ctx.strokeStyle = '#000';
+      F(9); ctx.textAlign = 'left'; ctx.fillText(f2(st), X[7] + 6, y0 + 1);
+      const iv = t.iv.filter(v => num(v.b) != null).map(v => `${v.b}/${v.c}`);
+      drawText(ctx, iv.join(' '), X[8] + 3, y0 + 1, X[9] - X[8] - 6, 11, 3);
+      const n = c.capped && c.c > 0 ? Math.round(50 * 30 / c.c) : c.b;
+      F(11, true); ctx.textAlign = 'center'; ctx.fillText(String(n), (X[9] + X[10]) / 2, y0);
+      pts.push({ x: gx + gw * Math.min(n, 50) / 50, y: (y0 + y1) / 2, over: n > 50 });
+    });
+    ctx.lineWidth = 1; ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)); ctx.stroke();
+    pts.forEach(q => { ctx.beginPath(); ctx.arc(q.x, q.y, 2.6, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.stroke(); ctx.fillStyle = '#000';
+      if (q.over) { ctx.beginPath(); ctx.moveTo(q.x + 3, q.y); ctx.lineTo(q.x + 12, q.y); ctx.lineTo(q.x + 8, q.y - 3); ctx.moveTo(q.x + 12, q.y); ctx.lineTo(q.x + 8, q.y + 3); ctx.stroke(); } });
+    /* 試料採取・原位置試験 */
+    const bar = (t, xa, xb) => {
+      const a = num(t.from) ?? num(t.to), b = num(t.to) ?? a; if (b < dA || a > dB) return;
+      const y0 = Y(a), y1 = Math.max(Y(b), y0 + 3);
+      ctx.fillStyle = '#555'; ctx.fillRect(xa + 4, y0, 5, y1 - y0); ctx.fillStyle = '#000';
+      F(9); ctx.textAlign = 'left';
+      drawText(ctx, `${SHORT[t.kind] || t.kind}${t.memo ? ' ' + t.memo : ''}`, xa + 12, y0, xb - xa - 15, 11, 2);
+      ctx.fillText(`${f2(a)}〜${f2(b)}`, xa + 12, y0 + 22);
+    };
+    D.tests.filter(t => TWS_KINDS.includes(t.kind)).forEach(t => bar(t, X[11], X[12]));
+    D.tests.filter(t => !TWS_KINDS.includes(t.kind)).forEach(t => bar(t, X[12], X[13]));
+    /* 削孔月日 */
+    F(9); ctx.textAlign = 'center';
+    D.prog.forEach(g => { if (g.d < dA || g.d > dB) return; const y = Y(g.d), t = ymd(g.date);
+      ctx.beginPath(); ctx.moveTo(X[13] + 6, y); ctx.lineTo(X[14] - 6, y); ctx.stroke(); ctx.fillText(`${t.m}/${t.d}`, (X[13] + X[14]) / 2, y - 12); });
+    ctx.restore();
+    out.push(cv);
+  }
+  return out;
+}
+function renderColumn(h) {
+  const s = site(h.siteId);
+  setBar('簡易柱状図', `${s.name} ／ ${h.name}`, `#/h/${h.id}`);
+  const E = holeErrors(h.id, true);
+  app.innerHTML = `${E.length ? `<div class="warnbox">⚠ 土質のつながりに直すところがあります。直すまでPDFとXMLは出せません。<ul>${E.slice(0, 6).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
+    <p class="lead">確認用の柱状図です（A3縦）。指で広げると拡大できます。</p><div id="cv"></div>
+    ${foot(`<button class="btn ghost" data-act="colXml" data-id="${h.id}">XMLで送る</button><button class="btn acc" data-act="colPdf" data-id="${h.id}">PDFで送る</button>`)}`;
+  const box = $('#cv');
+  try { box.innerHTML = columnPages(h).map(c => `<img alt="簡易柱状図" src="${c.toDataURL('image/png')}" style="width:100%;display:block;margin:0 auto 12px;box-shadow:0 1px 6px rgba(0,0,0,.25);background:#fff">`).join(''); }
+  catch (e) { console.error(e); box.innerHTML = '<p class="empty">柱状図を描けませんでした。</p>'; }
+}
+async function makeColumnPDF(h) {
+  if (!(await guardSoils(holeErrors(h.id, true)))) return;
+  if (inFrame()) return trialNotice();
+  $('#busy').hidden = false;
+  try {
+    await loadScript('lib/jspdf.umd.min.js');
+    const pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a3', compress: true });
+    columnPages(h).forEach((c, i) => { if (i) pdf.addPage('a3', 'portrait'); pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 297, 420); });
+    $('#busy').hidden = true;
+    const res = await shareOrSave(pdf.output('blob'), `簡易柱状図_${safeName(site(h.siteId).name)}_${safeName(h.name)}.pdf`, 'application/pdf');
+    if (res !== 'cancel') toast(res === 'shared' ? 'PDFを送りました' : 'PDFを保存しました');
+  } catch (e) { console.error(e); $('#busy').hidden = true; await ask('PDFを作れませんでした', '一度アプリを閉じて開き直してから、もう一度お試しください。', [{ t: 'OK', v: '' }]); }
+}
+
+/* ---------- 柱状図XML（ボーリング交換用データ ver4.00） ---------- */
+/* 地質区分のコードは、いただいた見本XMLで確認できたものだけ入れています */
+const SOIL_CODE = {
+  '礫粘土混じり砂': ['S-C', '531211004'], '粘土混じり砂礫': ['GS-C', '531120004'], '玉石': ['B', '510000010'],
+  'シルト質砂': ['SM', '531231030'], '砂混じり粘土': ['CH-S', '532120002'], '玉石混じり砂礫': ['GS-B', '531120009'],
+};
+const soilKey = n => (n || '').trim().replace(/混り/g, '混じり');
+const xe = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\r?\n/g, '\\n');
+function buildXML(h) {
+  const s = site(h.siteId), D = colData(h), reps = D.reps;
+  const last = reps[reps.length - 1] || blankReport(), c = last.cond;
+  const el = (name, v) => (v === '' || v == null) ? `<${name} />` : `<${name}>${xe(v)}</${name}>`;
+  const L = [], o = (ind, t) => L.push('  '.repeat(ind) + t);
+  const chief = (reps.flatMap(r => r.workers).find(w => w.role === '調査技士' && w.name) || {}).name || '';
+  const ang = c.angle === '鉛直' ? '0.00' : (num(c.angle) != null ? f2(num(c.angle)) : '');
+  o(0, '<?xml version="1.0" encoding="Shift_JIS"?>');
+  o(0, '<!DOCTYPE ボーリング情報 SYSTEM "BED0400.DTD">');
+  o(0, '<ボーリング情報 DTD_version="4.00">');
+  o(1, '<基礎情報>'); o(2, el('適用規格', 'JIS A 0205-2012')); o(2, el('適用規格', 'JIS A 0206-2013'));
+  o(2, '<公開フラグ>'); o(3, el('公開フラグ_コード', '1')); o(3, el('公開フラグ_備考', '')); o(2, '</公開フラグ>'); o(1, '</基礎情報>');
+  o(1, '<標題情報>');
+  o(2, '<調査基本情報>'); [['事業工事名', s.name], ['調査名', s.name], ['調査目的', ''], ['調査対象', ''], ['ボーリング名', h.name], ['ボーリング総数', ''], ['ボーリング連番', '']].forEach(([k, v]) => o(3, el(k, v))); o(2, '</調査基本情報>');
+  o(2, '<経度緯度情報>'); ['経度_度', '経度_分', '経度_秒', '緯度_度', '緯度_分', '緯度_秒', '取得方法コード', '読取精度コード', '測地系'].forEach(k => o(3, el(k, ''))); o(2, '</経度緯度情報>');
+  o(2, '<調査位置>'); ['調査位置住所', 'コード1次', 'コード2次', 'コード3次'].forEach(k => o(3, el(k, ''))); o(2, '</調査位置>');
+  o(2, '<発注機関>'); ['発注機関名称', 'テクリスコード'].forEach(k => o(3, el(k, ''))); o(2, '</発注機関>');
+  o(2, '<調査期間>'); o(3, el('調査期間_開始年月日', reps[0] ? reps[0].date : '')); o(3, el('調査期間_終了年月日', last.date || '')); o(2, '</調査期間>');
+  o(2, '<調査会社>'); [['調査会社_名称', ''], ['調査会社_TEL', ''], ['調査会社_主任技師_氏名', ''], ['調査会社_現場代理人_氏名', ''], ['調査会社_コア鑑定者_氏名', ''], ['調査会社_ボーリング責任者_氏名', chief]].forEach(([k, v]) => o(3, el(k, v))); o(2, '</調査会社>');
+  o(2, '<ボーリング基本情報>'); o(3, el('孔口標高', '')); o(3, el('総削孔長', f2(D.total))); o(3, el('柱状図様式', '12'));
+  if (ang) o(3, el('角度', ang)); if (num(c.slope) != null) o(3, el('地盤勾配', f2(num(c.slope)))); o(2, '</ボーリング基本情報>');
+  o(2, '<試錐機>'); o(3, el('試錐機_名称', c.drill)); o(2, '</試錐機>');
+  o(2, '<エンジン>'); o(3, el('エンジン_名称', c.engine)); o(2, '</エンジン>');
+  o(2, '<ポンプ>'); o(3, el('ポンプ_名称', c.pump)); o(2, '</ポンプ>');
+  o(1, '</標題情報>');
+  o(1, '<コア情報>');
+  const P = '工学的地質区分名現場土質名';
+  D.layers.forEach(l => {
+    const cd = SOIL_CODE[soilKey(l.kubun)] || ['', ''];
+    o(2, `<${P}>`); o(3, el(`${P}_下端深度`, f2(l.to))); o(3, el(`${P}_${P}`, l.kubun)); if (cd[0]) o(3, el(`${P}_${P}記号`, cd[0]));
+    o(3, `<${P}_岩石群>`); o(4, el(`${P}_岩石群コード`, '1')); o(4, `<${P}_岩石土コード>`);
+    o(5, el(`${P}_岩相`, '')); o(5, el(`${P}_岩石`, cd[1])); o(5, el(`${P}_変成岩岩相`, '')); o(5, el(`${P}_変成岩岩石`, ''));
+    o(4, `</${P}_岩石土コード>`); o(3, `</${P}_岩石群>`); o(2, `</${P}>`);
+  });
+  D.layers.forEach(l => { if (!l.color) return; o(2, '<色調>'); o(3, el('色調_下端深度', f2(l.to))); o(3, el('色調_色調名', l.color)); o(2, '</色調>'); });
+  D.layers.forEach(l => { o(2, '<観察記事>'); o(3, el('観察記事_上端深度', f2(l.from))); o(3, el('観察記事_下端深度', f2(l.to))); if (l.notes.length) o(3, el('観察記事_記事', l.notes.join('\n'))); o(2, '</観察記事>'); });
+  D.layers.forEach(l => { o(2, '<観察記事枠線>'); o(3, el('観察記事枠線_下端深度', f2(l.to))); o(2, '</観察記事枠線>'); });
+  D.spt.forEach(({ t, c: nc, s: st }) => {
+    const bins = [[0, 0], [0, 0], [0, 0]]; let cum = 0, used = [false, false, false];
+    t.iv.forEach(v => { const b = num(v.b), cm = num(v.c); if (b == null || cm == null) return; const k = Math.min(2, Math.floor(cum / 10 + 0.0001)); bins[k][0] += b; bins[k][1] += cm; used[k] = true; cum += cm; });
+    o(2, '<標準貫入試験>'); o(3, el('標準貫入試験_開始深度', f2(st)));
+    ['0_100', '100_200', '200_300'].forEach((k, i) => { if (!used[i]) return; o(3, el(`標準貫入試験_${k}打撃回数`, bins[i][0])); o(3, el(`標準貫入試験_${k}貫入量`, Math.round(bins[i][1] * 10))); });
+    o(3, el('標準貫入試験_合計打撃回数', nc.b)); o(3, el('標準貫入試験_合計貫入量', Math.round(nc.c * 10))); o(2, '</標準貫入試験>');
+  });
+  D.tests.filter(t => !TWS_KINDS.includes(t.kind)).forEach(t => {
+    o(2, '<その他原位置試験>'); o(3, el('その他原位置試験_試験名', t.kind)); o(3, el('その他原位置試験_上端深度', f2(num(t.from))));
+    o(3, el('その他原位置試験_下端深度', f2(num(t.to)))); o(3, el('その他原位置試験_試験結果', t.memo || '')); o(2, '</その他原位置試験>');
+  });
+  let sn = 0;
+  D.tests.filter(t => TWS_KINDS.includes(t.kind)).forEach(t => {
+    sn++; o(2, '<試料採取>'); o(3, el('試料採取_上端深度', f2(num(t.from)))); o(3, el('試料採取_下端深度', f2(num(t.to))));
+    o(3, el('試料採取_試料番号', t.memo || `T-${sn}`)); o(3, el('試料採取_採取方法コード', '999')); o(3, el('試料採取_採取方法', t.kind)); o(2, '</試料採取>');
+  });
+  reps.forEach(r => [['作業前', r.water.before], ['作業後', r.water.after]].forEach(([k, v]) => {
+    if (num(v) == null) return; o(2, '<孔内水位>'); o(3, el('孔内水位_測定年月日', r.date)); o(3, el('孔内水位_削孔状況コード', ''));
+    o(3, el('孔内水位_削孔状況', k)); o(3, el('孔内水位_孔内水位', f2(num(v)))); o(2, '</孔内水位>');
+  }));
+  D.prog.forEach(g => { o(2, '<削孔工程>'); o(3, el('削孔工程_測定年月日', g.date)); o(3, el('削孔工程_削孔深度', f2(g.d))); o(2, '</削孔工程>'); });
+  const dias = [];
+  reps.forEach(r => { const e = num(r.depth.end), p = num(r.depth.prev) ?? 0, d = r.cond.dia; if (e == null || e <= p || !d) return;
+    const lst = dias[dias.length - 1]; if (lst && lst.d === d) lst.to = e; else dias.push({ d, to: e }); });
+  dias.forEach(x => { o(2, '<孔径孔壁保護>'); o(3, el('孔径孔壁保護_下端深度', f2(x.to))); o(3, el('孔径孔壁保護_孔径', x.d)); o(2, '</孔径孔壁保護>'); });
+  const rocks = reps.flatMap(r => r.rocks || []).filter(x => num(x.to) != null).sort((a, b) => num(a.to) - num(b.to));
+  rocks.forEach(x => { if (!x.speed) return; o(2, '<削孔速度>'); o(3, el('削孔速度_下端深度', f2(num(x.to)))); o(3, el('削孔速度_削孔速度', x.speed)); o(2, '</削孔速度>'); });
+  rocks.forEach(x => { if (!x.bit) return; const [tb, bt] = x.bit.split(/[／\/]/); o(2, '<コアチューブビット>'); o(3, el('コアチューブビット_下端深度', f2(num(x.to))));
+    o(3, el('コアチューブビット_コアチューブ名', (tb || '').trim())); if (bt) o(3, el('コアチューブビット_ビット名', bt.trim())); o(2, '</コアチューブビット>'); });
+  rocks.forEach(x => { if (!x.press) return; o(2, '<給圧条件>'); o(3, el('給圧条件_下端深度', f2(num(x.to)))); o(3, el('給圧条件_給圧', x.press)); o(2, '</給圧条件>'); });
+  rocks.forEach(x => { if (!x.rpm) return; o(2, '<回転数>'); o(3, el('回転数_下端深度', f2(num(x.to)))); o(3, el('回転数_回転数', x.rpm)); o(2, '</回転数>'); });
+  rocks.forEach(x => { if (!(x.wpress || x.wflow || x.drain)) return; o(2, '<送水条件>'); o(3, el('送水条件_下端深度', f2(num(x.to)))); o(3, el('送水条件_送水圧', x.wpress));
+    o(3, el('送水条件_送水量', x.wflow)); o(3, el('送水条件_排水量', x.drain)); o(3, el('送水条件_送水種類コード', '')); if (x.water) o(3, el('送水条件_送水種類', x.water)); o(2, '</送水条件>'); });
+  o(1, '</コア情報>');
+  o(0, '</ボーリング情報>');
+  return L.join('\r\n') + '\r\n';
+}
+async function makeXML(h) {
+  if (!(await guardSoils(holeErrors(h.id, true)))) return;
+  const miss = [...new Set(holeLayers(h.id).map(l => l.kubun).filter(n => !SOIL_CODE[soilKey(n)]))];
+  if (miss.length) {
+    const a = await ask('地質区分のコードがない土質名があります', `${miss.map(esc).join('、')}<br>これらはコード（岩石土コード・記号）を空けて出力します。確認用としてはそのまま使えます。`, [{ t: 'このまま出力する', v: 'go', cls: 'acc' }, { t: 'やめる', v: '' }]);
+    if (!a) return;
+  }
+  if (inFrame()) return trialNotice();
+  try {
+    await loadScript('lib/encoding.min.js');
+    const xml = buildXML(h);
+    const bytes = new Uint8Array(window.Encoding.convert(window.Encoding.stringToCode(xml), { to: 'SJIS', from: 'UNICODE' }));
+    const res = await shareOrSave(new Blob([bytes], { type: 'application/xml' }), `柱状図_${safeName(site(h.siteId).name)}_${safeName(h.name)}.xml`, 'application/xml');
+    if (res !== 'cancel') toast('XMLを書き出しました');
+  } catch (e) { console.error(e); await ask('XMLを作れませんでした', '一度アプリを閉じて開き直してから、もう一度お試しください。', [{ t: 'OK', v: '' }]); }
+}
+
+/* ---------- 日報をまとめてPDFにする ---------- */
+async function bundlePDF(reps, name) {
+  if (!reps.length) { toast('日報がありません'); return; }
+  const E = reps.flatMap(r => soilErrors(r).map(m => `${hole(r.holeId).name} ${fmtDate(r.date)}：${m}`));
+  if (!(await guardSoils(E))) return;
+  if (inFrame()) return trialNotice();
+  const res = await sendPDF(reps.flatMap(r => paperPages(r)), name);
+  if (res === 'shared' || res === 'saved') { const now = Date.now(); reps.forEach(r => { r.pdfAt = now; }); touch(); }
 }
 
 /* ---------- 起動 ---------- */
 (async function start() {
   await loadState();
+  S.holes.forEach(h => rechain(h.id));
   fillDatalists();
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
   render();
